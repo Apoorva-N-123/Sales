@@ -1,0 +1,152 @@
+﻿@model Sales.Models.Product
+@{
+    ViewBag.Title = "Edit Product";
+}
+
+<h2>Edit Product</h2>
+
+@using (Html.BeginForm("ProductEdit1", "Product", FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.ProductId)
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Product Code</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.ProductCode, new { @class = "form-control", @readonly = "readonly" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Product Description</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.ProductDescription, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Count Code</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.CountCode, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Count Description</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.CountDescription, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Mix Count</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.MixCount, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">HSN Code</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.HSNCode, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">HSN Description</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.HSNDescription, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Product Type Code</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.ProductTypeCode, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Product Type Description</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.ProductTypeDescription, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Variety Code</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.VarietyCode, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Variety Description</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.VarietyDescription, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">KCS Code</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.KCSCode, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">KCS Description</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.KCSDescription, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">WH Code</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.WHCode, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">WH Description</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.WHDescription, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Blend</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.Blend, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Cone Weight</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.ConeWeight, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Bag Actual Weight</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.BagActualWeight, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Bundle Weight</label>
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.BundleWeight, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <button type="submit" class="btn btn-success">Save</button>
+            <a href="@Url.Action("ProductEditDelete", "Product")" class="btn btn-secondary">Cancel</a>
+        </div>
+    </div>
+}

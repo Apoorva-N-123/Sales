@@ -1,0 +1,397 @@
+﻿@model Sales.Models.Customer
+
+@{
+    ViewBag.Title = "Create Customer";
+}
+@if (ViewBag.Message != null)
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            showModal('@ViewBag.Message');
+        });
+    </script>
+}
+
+<script>
+    function showModal(message) {
+        document.getElementById("modalMessage").innerText = message; // Update modal message text
+        const modal = new bootstrap.Modal(document.getElementById("messageModal"));
+        modal.show(); // Show the modal
+
+        // Listen for when the modal is closed
+        $('#messageModal').on('hidden.bs.modal', function () {
+            // After closing, redirect to the "Customer" page
+            window.location.href = '/Customer/Customer'; // This will reload the page
+        });
+    }
+
+    function cancelAction(event) {
+        event.preventDefault(); // Prevent default behavior (redirect)
+
+        const message = "Are you sure you want to cancel the registration?";
+        document.getElementById("modalMessage").innerText = message; // Set cancellation message
+        const modal = new bootstrap.Modal(document.getElementById("messageModal"));
+        modal.show(); // Show the modal
+
+        // Add a one-time event listener for the modal close button
+        $('#messageModal').on('hidden.bs.modal', function () {
+            window.location.href = '/Customer/CustomerEditDelete'; // Redirect to Success page after modal is closed
+        });
+    }
+</script>
+
+<h2>Create Customer</h2>
+
+<div class="container mt-5">
+    <div class="card shadow-lg p-4 rounded" style="max-width: 1200px; margin: 0;">
+        <form id="customerForm" method="post" action="/Customer/Customer">
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="CustomerName" class="text-info">Customer Name</label>
+                        @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control form-control-lg", placeholder = "Enter customer name" })
+                        @Html.ValidationMessageFor(m => m.CustomerName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="AddressLine1" class="text-info">Address Line 1</label>
+                        @Html.TextBoxFor(m => m.AddressLine1, new { @class = "form-control form-control-lg", placeholder = "Enter address line 1" })
+                        @Html.ValidationMessageFor(m => m.AddressLine1, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="AddressLine2" class="text-info">Address Line 2</label>
+                        @Html.TextBoxFor(m => m.AddressLine2, new { @class = "form-control form-control-lg", placeholder = "Enter address line 2" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="AddressLine3" class="text-info">Address Line 3</label>
+                        @Html.TextBoxFor(m => m.AddressLine3, new { @class = "form-control form-control-lg", placeholder = "Enter address line 3" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="City" class="text-info">City</label>
+                        @Html.TextBoxFor(m => m.City, new { @class = "form-control form-control-lg", id = "city", placeholder = "Enter or select city" })
+                        @Html.ValidationMessageFor(m => m.City, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="State" class="text-info">State</label>
+                        @Html.TextBoxFor(m => m.State, new { @class = "form-control form-control-lg", id = "state", placeholder = "Enter or select state" })
+                        @Html.ValidationMessageFor(m => m.State, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="Country" class="text-info">Country</label>
+                        @Html.TextBoxFor(m => m.Country, new { @class = "form-control form-control-lg", id = "country", placeholder = "Enter or select country" })
+                        @Html.ValidationMessageFor(m => m.Country, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="Pincode" class="text-info">Pincode</label>
+                        @Html.TextBoxFor(m => m.Pincode, new { @class = "form-control form-control-lg", placeholder = "Enter pincode" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="GSTStateCode" class="text-info">GST State Code</label>
+                        @Html.TextBoxFor(m => m.GSTStateCode, new { @class = "form-control form-control-lg", id = "gstStateCode", placeholder = "GST state code will be auto-filled", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="GSTIN" class="text-info">GSTIN</label>
+                        @Html.TextBoxFor(m => m.GSTIN, new { @class = "form-control form-control-lg", placeholder = "Enter GSTIN" })
+                        @Html.ValidationMessageFor(m => m.GSTIN, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="PhoneNumber" class="text-info">Phone Number</label>
+                        @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control form-control-lg", placeholder = "Enter phone number" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="Email" class="text-info">Email</label>
+                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control form-control-lg", placeholder = "Enter email" })
+                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="WebsiteLink" class="text-info">Website Link</label>
+                @Html.TextAreaFor(m => m.WebsiteLink, new { @class = "form-control form-control-lg", placeholder = "Enter website link" })
+            </div>
+
+            <div class="form-group">
+                <label for="Remarks" class="text-info">Remarks</label>
+                @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control form-control-lg", placeholder = "Enter remarks (optional)" })
+            </div>
+
+            <!-- Save and Cancel buttons below the remarks field -->
+            <div class="form-group mt-4 d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary btn-sm me-2" style="width: 80px;">Save</button>
+                <a href="#" class="btn btn-danger btn-sm" onclick="cancelAction(event)" style="width: 80px;">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="messageModalLabel">Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalMessage">
+                <!-- Message text will be inserted here dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: azure;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .card {
+        background-color: #ffffff;
+        border: solid 1px #d1d1d1;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #2c3e50;
+        text-transform: uppercase;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        margin-bottom: 5px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        color: #8e44ad;
+       
+    }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #8e44ad;
+            margin-bottom: 5px;
+        }
+
+    .form-control {
+        font-size: 0.85rem;
+        padding: 8px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        transition: border-color 0.3s ease;
+    }
+
+        .form-control:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+    .btn {
+        font-size: 0.85rem;
+        padding: 8px 12px;
+        border-radius: 5px;  
+        border: none;
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        color: #fff;
+    }
+
+        .btn-primary:hover {
+            background-color: #217dbb;
+        }
+
+    .btn-danger {
+        background-color: #e74c3c;
+        color: #fff;
+    }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+    .modal-content {
+        background-color: #ecf0f1;
+    }
+
+    .form-group.mt-4.d-flex {
+        display: flex;
+        justify-content: center; /* Center the buttons horizontally */
+        align-items: center; /* Align buttons vertically (if needed) */
+        gap: 10px; /* Add spacing between buttons */
+    }
+
+    .form-group .btn {
+        font-size: 0.75rem; /* Reduce font size */
+        padding: 6px 12px; /* Smaller padding */
+        border-radius: 5px;
+        border: none;
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+        width: 80px; /* Set a fixed width for both buttons */
+    }
+
+    .form-group .btn-primary {
+        background-color: #3498db;
+        color: #fff;
+    }
+
+    .form-group .btn-danger {
+        background-color: #e74c3c;
+        color: #fff;
+    }
+
+    .form-group .btn-primary:hover {
+        background-color: #217dbb;
+    }
+
+    .form-group .btn-danger:hover {
+        background-color: #c0392b;
+    }
+
+
+
+</style>
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" />
+
+    <script>
+        $(document).ready(function () {
+            const message = "@TempData["Message"]";
+            const messageType = "@TempData["MessageType"]";
+
+            if (message) {
+                const modalBody = $("#modalMessageBody");
+                modalBody.text(message);
+
+                const modal = $("#messageModal");
+                if (messageType === "success") {
+                    modalBody.addClass("text-success");
+                } else if (messageType === "error") {
+                    modalBody.addClass("text-danger");
+                } else {
+                    modalBody.addClass("text-info");
+                }
+
+                modal.modal("show");
+            }
+
+            // Existing autocomplete logic
+            $("#city").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: "/Customer/GetCities",
+                        type: "GET",
+                        data: { searchTerm: request.term },
+                        success: function (data) {
+                            response($.map(data, function (city) {
+                                return { label: city.CityName, value: city.CityName };
+                            }));
+                        }
+                    });
+                },
+                minLength: 2,
+                autoFocus: true,
+                delay: 200
+            });
+
+            // Initialize jQuery UI Autocomplete for Country field
+            $("#country").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: "/Customer/GetCountries",
+                        type: "GET",
+                        data: { searchTerm: request.term },
+                        success: function (data) {
+                            response($.map(data, function (country) {
+                                return { label: country.CountryName, value: country.CountryName };
+                            }));
+                        }
+                    });
+                },
+                minLength: 2,
+                autoFocus: true,
+                delay: 200
+            });
+
+            // Initialize jQuery UI Autocomplete for State field
+            $("#state").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: "/Customer/GetStates",
+                        type: "GET",
+                        data: { searchTerm: request.term },
+                        success: function (data) {
+                            response($.map(data, function (state) {
+                                return { label: state.StateName, value: state.StateName, gstCode: state.GSTStateCode };
+                            }));
+                        }
+                    });
+                },
+                minLength: 2,
+                autoFocus: true,
+                delay: 200,
+                select: function (event, ui) {
+                    // Auto-fill GST State Code when a state is selected
+                    $("#gstStateCode").val(ui.item.gstCode);
+                }
+            });
+        });
+    </script>
+}

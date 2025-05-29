@@ -1,0 +1,302 @@
+﻿@model Sales.Models.Product
+
+@{
+    ViewBag.Title = "Product Register";
+}
+
+<h2>Product Register</h2>
+<div class="card shadow-lg p-4 rounded" style="max-width: 1200px; margin: 0;">
+    <form id="productForm" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="grid-container">
+            <div class="form-group">
+                <label for="ProductCode">Product Code</label>
+                @Html.TextBoxFor(m => m.ProductCode, new { @class = "form-control", placeholder = "Enter Product Code" })
+                @Html.ValidationMessageFor(m => m.ProductCode)
+            </div>
+
+            <div class="form-group">
+                <label for="ProductDescription">Product Description</label>
+                @Html.TextBoxFor(m => m.ProductDescription, new { @class = "form-control", placeholder = "Enter Product Description" })
+                @Html.ValidationMessageFor(m => m.ProductDescription)
+            </div>
+
+            <div class="form-group">
+                <label for="CountDescription">Count Description</label>
+                @Html.DropDownListFor(m => m.CountDescription, (SelectList)ViewBag.CountList, "Select Count Description", new { @class = "form-control" })
+            </div>
+
+            <div class="form-group">
+
+                <label for="CountCode">Count Code</label>
+                @Html.TextBoxFor(m => m.CountCode, new { @class = "form-control", placeholder = "Count Code", @readonly = "readonly", id = "CountCode" })
+            </div>
+
+            <div class="form-group">
+                <label for="MixCount">Mix Count</label>
+                @Html.TextBoxFor(m => m.MixCount, new { @class = "form-control", placeholder = "Enter Mix Count" })
+            </div>
+            <div class="form-group">
+
+                <label for="HSNCode">HSN Code</label>
+                @Html.TextBoxFor(m => m.HSNCode, new { @class = "form-control", placeholder = "HSN Code", @readonly = "readonly", id = "HSNCode" })
+            </div>
+
+            <div class="form-group">
+                <label for="HSNDescription">HSN Description</label>
+                @Html.DropDownListFor(m => m.HSNDescription, (SelectList)ViewBag.HSNList, "Select HSN Description", new { @class = "form-control", id = "HSNDescription" })
+            </div>
+
+            <div class="form-group">
+
+                <label for="ProductTypeCode">Product Type Code</label>
+                @Html.TextBoxFor(m => m.ProductTypeCode, new { @class = "form-control", placeholder = "Enter Product Type Code", @readonly = "readonly", id = "ProductTypeCode" })
+            </div>
+
+            <div class="form-group">
+                <label for="ProductTypeDescription">Product Type Description</label>
+                @Html.DropDownListFor(m => m.ProductTypeDescription, (SelectList)ViewBag.ProductTypeList, "Select Product Type Description", new { @class = "form-control", id = "ProductTypeDescription" })
+            </div>
+
+            <div class="form-group">
+
+                <label for="KCSCode">KCS Code</label>
+                @Html.TextBoxFor(m => m.KCSCode, new { @class = "form-control", placeholder = "Enter KCS Code", @readonly = "readonly", id = "KCSCode" })
+            </div>
+
+            <div class="form-group">
+                <label for="KCSDescription">KCS Description</label>
+                @Html.DropDownListFor(m => m.KCSDescription, (SelectList)ViewBag.KCSList, "Select KCS Description", new { @class = "form-control", id = "KCSDescription" })
+            </div>
+
+            <div class="form-group">
+
+                <label for="WHCode">WH Code</label>
+                @Html.TextBoxFor(m => m.WHCode, new { @class = "form-control", placeholder = "Enter WH Code", @readonly = "readonly", id = "WHCode" })
+            </div>
+
+            <div class="form-group">
+                <label for="WHDescription">WH Description</label>
+                @Html.DropDownListFor(m => m.WHDescription, (SelectList)ViewBag.WHList, "Select WH Description", new { @class = "form-control", id = "WHDescription" })
+            </div>
+
+            <div class="form-group">
+
+                <label for="VarietyCode">Variety Code</label>
+                @Html.TextBoxFor(m => m.VarietyCode, new { @class = "form-control", placeholder = "Enter Variety Code", @readonly = "readonly", id = "VarietyCode" })
+            </div>
+
+            <div class="form-group">
+                <label for="VarietyDescription">Variety Description</label>
+                @Html.DropDownListFor(m => m.VarietyDescription, (SelectList)ViewBag.VarietyList, "Select Variety Description", new { @class = "form-control", id = "VarietyDescription" })
+            </div>
+
+            <div class="form-group">
+                <label for="Blend">Blend</label>
+                @Html.TextBoxFor(m => m.Blend, new { @class = "form-control", placeholder = "Enter Blend" })
+            </div>
+
+            <div class="form-group">
+                <label for="ConeWeight">Cone Weight</label>
+                @Html.TextBoxFor(m => m.ConeWeight, new { @class = "form-control", placeholder = "Enter Cone Weight" })
+            </div>
+
+            <div class="form-group">
+                <label for="BagActualWeight">Bag Actual Weight</label>
+                @Html.TextBoxFor(m => m.BagActualWeight, new { @class = "form-control", placeholder = "Enter Bag Actual Weight" })
+            </div>
+
+            <div class="form-group">
+                <label for="BundleWeight">Bundle Weight</label>
+                @Html.TextBoxFor(m => m.BundleWeight, new { @class = "form-control", placeholder = "Enter Bundle Weight" })
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" id="saveButton">Save</button>
+                <button type="button" class="btn btn-danger" onclick="cancelAction()">Cancel</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: azure;
+        margin: 0;
+        padding: 20px;
+    }
+    .card {
+        background-color: #ffffff;
+        border: solid 1px #d1d1d1;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* Two columns for each row */
+        gap: 20px;
+        margin: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        color: #8e44ad;
+    }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #8e44ad;
+            margin-bottom: 5px;
+        }
+
+    .form-control {
+        font-size: 0.85rem;
+        padding: 8px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        transition: border-color 0.3s ease;
+    }
+
+        .form-control:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+    .btn {
+        font-size: 0.85rem;
+        padding: 8px 12px;
+        border-radius: 5px;
+        border: none;
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        color: #fff;
+    }
+
+        .btn-primary:hover {
+            background-color: #217dbb;
+        }
+
+    .btn-danger {
+        background-color: #e74c3c;
+        color: #fff;
+    }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+    .form-group.mt-4.d-flex {
+        display: flex;
+        justify-content: center; /* Center the buttons horizontally */
+        align-items: center; /* Align buttons vertically (if needed) */
+        gap: 10px; /* Add spacing between buttons */
+    }
+
+    .form-group .btn {
+        font-size: 0.75rem; /* Reduce font size */
+        padding: 6px 12px; /* Smaller padding */
+        border-radius: 5px;
+        border: none;
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+        width: 80px; /* Set a fixed width for both buttons */
+    }
+
+    .form-group .btn-primary {
+        background-color: #3498db;
+        color: #fff;
+    }
+
+    .form-group .btn-danger {
+        background-color: #e74c3c;
+        color: #fff;
+    }
+
+    .form-group .btn-primary:hover {
+        background-color: #217dbb;
+    }
+
+    .form-group .btn-danger:hover {
+        background-color: #c0392b;
+    }
+</style>
+
+    @section scripts {
+        <script>
+        $(document).ready(function () {
+        // Update CountCode based on selected CountDescription
+        $('#CountDescription').change(function () {
+            var selectedCountCode = $(this).val();
+            $('#CountCode').val(selectedCountCode);
+        });
+
+        // Update HSNCode based on selected HSNDescription
+        $('#HSNDescription').change(function () {
+            var selectedHSNCode = $(this).val();
+            $('#HSNCode').val(selectedHSNCode);
+        });
+
+        // Update ProductTypeCode based on selected ProductTypeDescription
+        $('#ProductTypeDescription').change(function () {
+             var selectedProductTypeCode = $(this).val();
+             $('#ProductTypeCode').val(selectedProductTypeCode);
+        });
+
+        // Update VarietyCode based on selected VarietyDescription
+        $('#VarietyDescription').change(function () {
+              var selectedVarietyCode = $(this).val();
+              $('#VarietyCode').val(selectedVarietyCode);
+        });
+
+        // Update WHCode based on selected WHDescription
+        $('#WHDescription').change(function () {
+              var selectedWHCode = $(this).val();
+              $('#WHCode').val(selectedWHCode);
+        });
+
+        // Update KCSCode based on selected KCSDescription
+        $('#KCSDescription').change(function () {
+              var selectedKCSCode = $(this).val();
+              $('#KCSCode').val(selectedKCSCode);
+        });
+
+        // Handle form submission
+        $('#productForm').submit(function (e) {
+            e.preventDefault(); // Prevent default form submission
+
+            var formData = $(this).serialize(); // Get all form data
+
+            $.ajax({
+                url: '@Url.Action("Create", "Product")',
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        window.location.reload(); // Reload page to reset form
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            });
+        });
+    });
+
+        function cancelAction() {
+            if (confirm('Are you sure you want to cancel?')) {
+                window.location.href = '@Url.Action("ProductEditDelete", "Product")';
+            }
+        }
+        </script>
+    }

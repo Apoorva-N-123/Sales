@@ -1,0 +1,518 @@
+﻿@model Sales.Models.Despatch
+@{
+    ViewBag.Title = "Despatch Registration";
+}
+<style>
+    /* General Form Styles */
+    form {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2, h3 {
+        text-align: center;
+        font-family: 'Arial', sans-serif;
+        color: #333;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+        color: #333;
+    }
+
+    input[type="text"], input[type="number"], input[type="date"], select {
+        width: 100%;
+        padding: 8px;
+        margin: 6px 0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    input[readonly] {
+        background-color: #f1f1f1;
+    }
+
+    /* Buttons */
+    button[type="submit"], button[type="button"] {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    button[type="submit"] {
+        background-color: #28a745;
+        color: white;
+    }
+
+    button[type="button"]:not([onclick="cancelDespatch()"]) {
+        background-color: #007bff;
+        color: white;
+    }
+
+    button[type="button"]:hover {
+        opacity: 0.8;
+    }
+
+    /* Modal Styles */
+    .modal-content {
+        border-radius: 8px;
+    }
+
+    .modal-header {
+        background-color: #007bff;
+        color: white;
+        font-size: 18px;
+    }
+
+    .modal-footer {
+        text-align: right;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    /* Table Styles */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+        table th, table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #f4f4f4;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        table input[type="number"] {
+            width: 100px;
+        }
+
+    /* Add Order Button */
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+        font-size: 14px;
+    }
+
+        .btn-success:hover {
+            opacity: 0.8;
+        }
+
+    /* Align buttons at the bottom right of the card */
+    button[type="submit"], button[type="button"] {
+        position: relative;
+        display: inline-block;
+        margin-top: 15px;
+    }
+
+    button[type="submit"] {
+        margin-right: 10px;
+    }
+
+    table th, table td {
+        font-size: 12px;
+        padding: 10px;
+    }
+
+    button[type="submit"], button[type="button"] {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    #despatchForm .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    #despatchForm .form-group {
+        flex: 1 1 30%; /* Adjust the percentage for column width */
+        min-width: 250px;
+    }
+
+    #despatchForm .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    #despatchForm .modal .modal-dialog {
+        max-width: 90%; /* Adjust modal width if necessary */
+    }
+
+</style>
+
+<h2><b>DESPATCH REGISTRATION</b></h2>
+
+@using (Html.BeginForm("Register", "Despatch", FormMethod.Post, new { id = "despatchForm" }))
+{
+    <!-- Despatch Form Fields -->
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label>Despatch Advice Date:</label>
+            @Html.TextBoxFor(m => m.DespatchAdviceDate, new { @class = "form-control", type = "date" })
+        </div>
+        <div class="form-group col-md-4">
+            @Html.LabelFor(m => m.CustomerName)
+            @Html.DropDownListFor(m => m.CustomerName, (SelectList)ViewBag.Customers, "Select Customer", new { @class = "form-control", @id = "CustomerName" })
+        </div>
+        <div class="form-group col-md-4">
+            @Html.LabelFor(m => m.GSTIN)
+            @Html.TextBoxFor(m => m.GSTIN, new { @class = "form-control", @id = "GSTIN", @readonly = "readonly" })
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label>Delivery Address:</label>
+            @Html.TextBoxFor(m => m.DeliveryAddress, new { @class = "form-control" })
+        </div>
+        <div class="form-group col-md-6">
+            <label>Vehicle Number:</label>
+            @Html.TextBoxFor(m => m.VehicleNumber, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <!-- Order Lookup Modal -->
+    <div class="modal fade" id="orderLookupModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Order</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body" id="orderLookupModalBody">
+                    <!-- Order list will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="selectOrder()">Select Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Lookup Modal -->
+    <div class="modal fade" id="productLookupModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Products</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body" id="productLookupModalBody">
+                    <!-- Product list will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="addProductsToTable()">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Table -->
+    <h3><b>ORDER DETAILS</b></h3>
+    <button type="button" class="btn btn-success" onclick="openOrderLookup()">Add Order</button>
+    <table id="orderTable" class="table">
+        <thead>
+            <tr>
+                <th>Order Reference Number</th>
+                <th>Product Code</th>
+                <th>Product Description</th>
+                <th>Order Quantity</th>
+                <th>Pack Type</th>
+                <th>Rate</th>
+                <th>Despatch Quantity</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Form Action Buttons -->
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="cancelDespatch()">Cancel</button>
+    </div>
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function cancelDespatch() {
+    if (confirm("Are you sure you want to cancel?")) {
+        alert("Despatch registration cancelled");
+        window.location.href = '@Url.Action("EditDeleteDespatch", "Despatch")';
+    }
+}
+
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#CustomerName').change(function () {
+            var customerName = $(this).val();
+
+            if (customerName) {
+                // Fetch the GSTIN for the selected customer name
+                $.ajax({
+                    url: '@Url.Action("GetCustomerGSTIN", "Despatch")',
+                    data: { customerName: customerName },
+                    type: 'GET',
+                    success: function (data) {
+                        if (data.success) {
+                            $('#GSTIN').val(data.gstin); // Set GSTIN value
+                        } else {
+                            alert('GSTIN not found.');
+                        }
+                    },
+                    error: function () {
+                        alert('Error fetching GSTIN.');
+                    }
+                });
+            } else {
+                $('#GSTIN').val(''); // Clear GSTIN if no customer is selected
+            }
+        });
+    });
+</script>
+
+<script>
+    function openOrderLookup() {
+        $.ajax({
+            url: '/Despatch/GetOrders',
+            type: 'GET',
+            success: function (data) {
+                let modalBody = $('#orderLookupModalBody');
+                modalBody.empty();
+
+                let table = `<table class="table">
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Order Reference Number</th>
+                            <th>Order Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+                data.forEach(order => {
+                    table += `<tr>
+                    <td><input type="radio" name="orderSelect" value="${order.OrderId}"
+                        data-ordernumber="${order.OrderReferenceNumber}" data-orderdate="${order.OrderDate}"></td>
+                    <td>${order.OrderReferenceNumber}</td>
+                    <td>${order.OrderDate}</td>
+                  </tr>`;
+                });
+
+                table += `</tbody></table>`;
+                modalBody.append(table);
+                $('#orderLookupModal').modal('show');
+            },
+            error: function () {
+                alert('Failed to load orders.');
+            }
+        });
+    }
+
+    function selectOrder() {
+        let selectedOrder = $("input[name='orderSelect']:checked");
+        if (selectedOrder.length > 0) {
+            let orderId = selectedOrder.val();
+            let orderReferenceNumber = selectedOrder.data('ordernumber'); // Get selected Order Reference Number
+
+            // Store the selected order reference number in a hidden input for later use
+            $('#orderTable').data('selectedOrderRef', orderReferenceNumber);
+
+            $('#orderLookupModal').modal('hide');
+            openProductLookup(orderId);
+        } else {
+            alert('Please select an order.');
+        }
+    }
+
+    function openProductLookup(orderId) {
+        $.ajax({
+            url: '/Despatch/GetProductsByOrder',
+            type: 'GET',
+            data: { orderId: orderId },
+            success: function (data) {
+                let modalBody = $('#productLookupModalBody');
+                modalBody.empty();
+
+                let table = `<table class="table">
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Product Code</th>
+                            <th>Product Description</th>
+                            <th>Order Quantity</th>
+                            <th>Pack Type</th>
+                            <th>Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+                data.forEach(product => {
+                    table += `<tr>
+                    <td><input type="checkbox" name="productSelect" value="${product.ProductId}"
+                        data-productcode="${product.ProductCode}"
+                        data-productdescription="${product.ProductDescription}"
+                        data-orderquantity="${product.OrderQuantity}"
+                        data-packtype="${product.PackType}"
+                        data-rate="${product.Rate}"></td>
+                    <td>${product.ProductCode}</td>
+                    <td>${product.ProductDescription}</td>
+                    <td>${product.OrderQuantity}</td>
+                    <td>${product.PackType}</td>
+                    <td>${product.Rate}</td>
+                  </tr>`;
+                });
+
+                table += `</tbody></table>`;
+                modalBody.append(table);
+                $('#productLookupModal').modal('show');
+            },
+            error: function () {
+                alert('Failed to load products.');
+            }
+        });
+    }
+
+    function addProductsToTable() {
+        let selectedProducts = $("input[name='productSelect']:checked");
+        let orderReferenceNumber = $('#orderTable').data('selectedOrderRef'); // Get stored order reference number
+
+        selectedProducts.each(function () {
+            let productCode = $(this).data('productcode');
+            let productDescription = $(this).data('productdescription');
+            let orderQuantity = $(this).data('orderquantity');
+            let packType = $(this).data('packtype');
+            let rate = $(this).data('rate');
+
+            let newRow = `<tr>
+                    <td>${orderReferenceNumber}</td>  <!-- Correct Order Reference Number -->
+                    <td>${productCode}</td>  <!-- Correct Product Code -->
+                    <td>${productDescription}</td>  <!-- Correct Product Description -->
+                    <td>${orderQuantity}</td>
+                    <td>${packType}</td>
+                    <td>${rate}</td>
+                    <td><input type="number" class="form-control" name="DespatchQuantity"></td>
+                  </tr>`;
+
+            $('#orderTable tbody').append(newRow);
+        });
+
+        $('#productLookupModal').modal('hide');
+    }
+
+</script>
+<script>
+    $('#despatchForm').submit(function (event) {
+        event.preventDefault();
+
+        // Validate the Despatch Advice Date
+        var despatchAdviceDate = $('#DespatchAdviceDate').val();
+        var today = new Date().toISOString().split('T')[0];  // Get today's date in YYYY-MM-DD format
+
+        if (despatchAdviceDate > today) {
+            alert("Despatch Advice Date cannot be in the future.");
+            return false;
+        }
+
+        // Continue with form submission
+        let despatchDetails = [];
+
+        $('#orderTable tbody tr').each(function () {
+            let row = $(this);
+            let despatchQuantity = row.find('td:eq(6) input').val().trim();
+            let orderQuantity = parseInt(row.find('td:eq(3)').text().trim()) || 0;  // Order quantity from the table
+
+            if (!despatchQuantity || despatchQuantity <= 0) {
+                alert("Despatch Quantity cannot be empty or zero.");
+                return false;
+            }
+
+            if (despatchQuantity > orderQuantity) {
+                alert("Despatch Quantity must be less than or equal to Order Quantity.");
+                row.find('td:eq(6) input').val(orderQuantity);  // Reset Despatch Quantity to Order Quantity if invalid
+                return false;
+            }
+
+            let detail = {
+                OrderReferenceNumber: row.find('td:eq(0)').text().trim(),
+                ProductCode: row.find('td:eq(1)').text().trim(),
+                ProductDescription: row.find('td:eq(2)').text().trim(),
+                OrderQuantity: orderQuantity,
+                PackType: row.find('td:eq(4)').text().trim(),
+                Rate: parseFloat(row.find('td:eq(5)').text().trim()) || 0,
+                DespatchQuantity: parseInt(despatchQuantity) || 0
+            };
+            despatchDetails.push(detail);
+        });
+
+        let despatchData = {
+            DespatchAdviceDate: $('#despatchForm input[name="DespatchAdviceDate"]').val(),
+            CustomerName: $('#despatchForm select[name="CustomerName"]').val(),  // Correctly fetch the selected customer name
+            GSTIN: $('#despatchForm input[name="GSTIN"]').val(),
+            DeliveryAddress: $('#despatchForm input[name="DeliveryAddress"]').val(),
+            VehicleNumber: $('#despatchForm input[name="VehicleNumber"]').val(),
+            DespatchDetails: despatchDetails
+        };
+
+        console.log("Sending data:", despatchData);
+
+        $.ajax({
+            url: '/Despatch/Register',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(despatchData),
+            success: function (response) {
+                console.log(response);
+                if (response.success) {
+                    alert(response.message);
+                    window.location.href = "/Despatch/Register";  // Redirect after success
+                } else {
+                    alert("Error: " + response.message);
+                }
+            },
+            error: function (xhr) {
+                alert("AJAX Error: " + xhr.responseText);
+            }
+        });
+    });
+
+
+    $(document).on('input', '.despatch-quantity', function () {
+        var orderQuantity = parseFloat($(this).closest('tr').find('.order-quantity').text().trim());
+        var despatchQuantity = parseFloat($(this).val());
+
+        if (despatchQuantity > orderQuantity) {
+            alert("Despatch Quantity must be less than or equal to Order Quantity.");
+            $(this).val(orderQuantity);
+        }
+    });
+
+</script> 

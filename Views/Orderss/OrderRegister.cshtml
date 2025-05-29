@@ -1,0 +1,389 @@
+﻿@model Sales.Models.Orderss
+@{
+    ViewBag.Title = "Register Order";
+}
+
+<head>
+    <style>
+        /* Grid Layout for the form */
+        .form-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 fields per row */
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        /* Styling for the labels */
+        label.control-label {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* Change the color of the validation error messages */
+        span.field-validation-error {
+            color: red;
+        }
+
+        /* Change the color of the input border when invalid */
+        input.input-validation-error {
+            border-color: red;
+        }
+
+        /* Styling for the save/cancel buttons */
+        .buttons-container {
+            grid-column: span 3; /* Make buttons span across all columns */
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn-custom {
+            width: 120px;
+            font-size: 1.1rem;
+            margin: 0 10px;
+        }
+
+        /* Styling for the modals */
+        .modal-content {
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<div class="container mt-5">
+    <h2 class="text-center">Register Order</h2>
+
+    @using (Html.BeginForm("SubmitOrder", "Order", FormMethod.Post, new { @class = "form-horizontal" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="card p-4">
+            <div class="form-container">
+
+                <!-- Fields arranged in grid -->
+                <div class="form-group">
+                    @Html.LabelFor(m => m.OrderReferenceNumber, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.OrderReferenceNumber, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.OrderReferenceNumber)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.OrderDate, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.OrderDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+                    @Html.ValidationMessageFor(m => m.OrderDate)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.OrderReferenceDate, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.OrderReferenceDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+                    @Html.ValidationMessageFor(m => m.OrderReferenceDate)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.CustomerName, new { @class = "control-label" })
+                    @Html.DropDownListFor(
+                            m => m.CustomerName,
+                            (IEnumerable<SelectListItem>)ViewBag.CustomerNames,
+                            "Select Customer",
+                            new { @class = "form-control" }
+                        )
+                    @Html.ValidationMessageFor(m => m.CustomerName, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.DeliveryAddress, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.DeliveryAddress, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.DeliveryAddress)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.PaymentTerms, new { @class = "control-label" })
+                    @Html.DropDownListFor(
+                                           m => m.PaymentTerms,
+                                           (IEnumerable<SelectListItem>)ViewBag.PaymentDescriptions,
+                                           "Select Payment Terms",
+                                           new { @class = "form-control", style = "max-height: 150px; overflow-y: scroll;" }
+                                       )
+                    @Html.ValidationMessageFor(m => m.PaymentTerms)
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.PayMode, new { @class = "control-label" })
+                    @Html.DropDownListFor(
+                                            m => m.PayMode,
+                                            new SelectList(new[] { "Direct", "Cheque" }),
+                                            "Select Pay Mode",
+                                            new { @class = "form-control" }
+                                       )
+                    @Html.ValidationMessageFor(m => m.PayMode)
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label">Product Details</label>
+                    <button type="button" class="btn btn-primary btn-sm" id="btnAddProduct" data-bs-toggle="modal" data-bs-target="#productModal">Add Product</button>
+                </div>
+
+                <table class="table table-bordered mt-3" id="productTable">
+                    <thead>
+                        <tr>
+                            <th>Product Code</th>
+                            <th>Product Description</th>
+                            <th>Pack Type</th>
+                            <th>Order Quantity</th>
+                            <th>Rate</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows will be dynamically added here -->
+                    </tbody>
+                </table>
+
+                <!-- Product Lookup Modal -->
+                <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="productModalLabel">Select Products</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table table-striped" id="lookupProductTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Select</th>
+                                            <th>Product Code</th>
+                                            <th>Product Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be populated dynamically via AJAX -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" id="btnAddSelectedProducts">Add Selected</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save and Cancel buttons -->
+                <div class="buttons-container">
+                    <button type="submit" class="btn btn-success btn-lg btn-custom" id="btnSave">Save</button>
+                    <a href="#" class="btn btn-danger btn-lg btn-custom" id="btnCancel">Cancel</a>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Modal Templates -->
+    <!-- Modal for Save and Cancel Confirmation (existing modal code) -->
+    <!-- Modal Template for Save and Cancel -->
+    <div class="modal fade" id="popupModal" tabindex="-1" aria-labelledby="popupModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="popupModalLabel">Notification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="popupMessage"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="modalCloseButton" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Cancel confirmation -->
+    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Message</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalMessage">
+                    <!-- Message will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-back" id="modalOkButton" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+window.onload = function () {
+    var successMessage = "@TempData["SuccessMessage"]";  // Retrieve the message from TempData
+    if (successMessage) {
+        document.getElementById("popupMessage").innerText = successMessage; // Set the message text
+        var modal = new bootstrap.Modal(document.getElementById("popupModal")); // Initialize the modal
+        modal.show(); // Show the modal
+
+        // When the modal is closed, reset the form fields
+        document.getElementById("modalCloseButton").addEventListener("click", function () {
+            document.querySelector("form").reset(); // Reset the form using JavaScript
+        });
+    }
+
+    var errorMessage = "@TempData["ErrorMessage"]";  // Retrieve the error message from TempData
+    if (errorMessage) {
+        document.getElementById("popupMessage").innerText = errorMessage; // Set the error message text
+        var modal = new bootstrap.Modal(document.getElementById("popupModal")); // Initialize the modal
+        modal.show(); // Show the modal
+    }
+};
+
+
+document.getElementById("btnCancel").addEventListener("click", function (e) {
+    e.preventDefault();  // Prevent the default anchor behavior
+    const modal = new bootstrap.Modal(document.getElementById("messageModal"));
+    document.getElementById("modalMessage").textContent = "Order registration cancelled.";
+    modal.show();
+
+    // Handle the redirect logic when the modal's OK button is clicked
+    document.getElementById("modalOkButton").addEventListener("click", function () {
+        window.location.href = '@Url.Action("Register", "Order")';  // Ensure the redirect happens to reset the form
+    });
+});
+
+$(document).ready(function () {
+    // Fetch products and populate the lookup modal
+    $('#btnAddProduct').on('click', function () {
+        $.ajax({
+            url: '@Url.Action("GetProducts", "Order")',
+            type: 'GET',
+            success: function (data) {
+                var rows = '';
+                data.forEach(function (product) {
+                    rows += `<tr>
+                                <td><input type="checkbox" class="product-checkbox"
+                                    data-code="${product.ProductCode}"
+                                    data-description="${product.ProductDescription}" /></td>
+                                <td>${product.ProductCode}</td>
+                                <td>${product.ProductDescription}</td>
+                             </tr>`;
+                });
+                $('#lookupProductTable tbody').html(rows);
+            }
+        });
+    });
+
+    // Handle the "Add Selected Products" button
+    // Handle the "Add Selected" button
+    $('#btnAddSelectedProducts').on('click', function () {
+        var selectedProducts = [];
+        $('.product-checkbox:checked').each(function () {
+            var productCode = $(this).data('code');
+            var productDescription = $(this).data('description');
+
+            // Check for duplicates
+            if (!selectedProducts.some(p => p.code === productCode)) {
+                selectedProducts.push({
+                    code: productCode,
+                    description: productDescription
+                });
+            }
+        });
+
+        if (selectedProducts.length === 0) {
+            alert('No products selected.');
+            return;
+        }
+
+        selectedProducts.forEach(function (product) {
+            $('#productTable tbody').append(`
+            <tr>
+                <td>${product.code}</td>
+                <td>${product.description}</td>
+                <td><input type="text" class="form-control" name="PackType[]" placeholder="Enter Pack Type" /></td>
+                <td><input type="number" class="form-control" name="OrderQuantity[]" placeholder="Enter Quantity" /></td>
+                <td><input type="text" class="form-control" name="Rate[]" placeholder="Enter Rate" /></td>
+                <td><button type="button" class="btn btn-danger btnRemoveProduct">Remove</button></td>
+            </tr>
+        `);
+        });
+    });
+
+
+    // Remove a product row
+    $('#productTable').on('click', '.btnRemoveProduct', function () {
+        $(this).closest('tr').remove();
+    });
+});
+
+        $('#btnSave').on('click', function (e) {
+        e.preventDefault();  // Prevent default form submission
+
+        // Validate required fields
+        if (!$('#OrderReferenceNumber').val() || !$('#OrderDate').val() || !$('#CustomerName').val()) {
+            alert('Please fill all the required fields.');
+            return;
+        }
+
+        if ($('#productTable tbody tr').length === 0) {
+            alert('Please add at least one product.');
+            return;
+        }
+
+        // Collect order data
+        const orderData = {
+            OrderReferenceNumber: $('#OrderReferenceNumber').val(),
+            OrderDate: $('#OrderDate').val(),
+            OrderReferenceDate: $('#OrderReferenceDate').val(),
+            CustomerName: $('#CustomerName').val(),
+            DeliveryAddress: $('#DeliveryAddress').val(),
+            PaymentTerms: $('#PaymentTerms').val(),
+            PayMode: $('#PayMode').val(),
+            OrderDetails: []  // Collect order details dynamically
+        };
+
+        // Collect order details (products)
+        $('#productTable tbody tr').each(function () {
+            const packType = $(this).find('input[name="PackType[]"]').val();
+            const orderQuantity = $(this).find('input[name="OrderQuantity[]"]').val();
+            const rate = $(this).find('input[name="Rate[]"]').val();
+            if (packType && orderQuantity && rate) {
+                orderData.OrderDetails.push({
+                    ProductCode: $(this).find('td').eq(0).text(),
+                    ProductDescription: $(this).find('td').eq(1).text(),
+                    PackType: packType,
+                    OrderQuantity: orderQuantity,
+                    Rate: rate
+                });
+            }
+        });
+
+        // AJAX call to submit order data
+        $.ajax({
+            url: '@Url.Action("SubmitOrder", "Order")',
+            type: 'POST',
+            data: orderData,
+            success: function (response) {
+                if (response.success) {
+                    // Display success modal with message
+                    $('#popupMessage').text(response.message);
+                    var modal = new bootstrap.Modal(document.getElementById("popupModal"));
+                    modal.show();
+                } else {
+                    // Display error message
+                    $('#popupMessage').text(response.errorMessage);
+                    var modal = new bootstrap.Modal(document.getElementById("popupModal"));
+                    modal.show();
+                }
+            },
+            error: function () {
+                alert('An error occurred while submitting the order.');
+            }
+        });
+    });
+
+
+    </script>
+</div>

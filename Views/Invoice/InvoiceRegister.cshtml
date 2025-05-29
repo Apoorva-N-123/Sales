@@ -1,0 +1,611 @@
+﻿@model Sales.Models.Invoice
+
+@{
+    ViewBag.Title = "Invoice Register";
+}
+
+<h2>Invoice Register</h2>
+
+<form id="invoiceForm">
+    <!-- Invoice Details -->
+    <div class="card">
+        <div class="card-header bg-primary text-white"><b>Invoice Details</b></div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <label><b>Invoice Date</b></label>
+                    <input type="date" class="form-control" id="InvoiceDate" name="InvoiceDate" required />
+                </div>
+
+                <div class="col-md-4">
+                    <label><b>Despatch Advice Number</b></label>
+                    @Html.DropDownList("DespatchAdviceNumber", ViewBag.DespatchList as SelectList,
+                    "Select Despatch Advice Number", new { @class = "form-control", required = "required", id = "DespatchAdviceNumber" })
+                </div>
+
+                <div class="col-md-4">
+                    <label><b>Customer Name</b></label>
+                    <input type="text" class="form-control" id="CustomerName" name="CustomerName" readonly />
+                </div>
+
+                <div class="col-md-4">
+                    <label><b>GSTIN</b></label>
+                    <input type="text" class="form-control" id="GSTIN" name="GSTIN" readonly />
+                </div>
+
+                <div class="col-md-4">
+                    <label><b>Delivery Address</b></label>
+                    <textarea class="form-control" id="DeliveryAddress" name="DeliveryAddress" readonly></textarea>
+                </div>
+
+                <div class="col-md-4">
+                    <label><b>Vehicle Number</b></label>
+                    <input type="text" class="form-control" id="VehicleNumber" name="VehicleNumber" readonly />
+                </div>
+
+                <div class="col-md-4">
+                    <label><b>Payment Mode</b></label>
+                    <input type="text" class="form-control" id="PayMode" name="PayMode" readonly />
+                </div>
+
+                <div class="col-md-4">
+                    <label><b>Payment Terms</b></label>
+                    <input type="text" class="form-control" id="PaymentTerms" name="PaymentTerms" readonly />
+                </div>
+
+                <div class="col-md-4">
+                    <label><b>Bank Name</b></label>
+                    <input type="text" class="form-control" id="BankName" name="BankName" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Product Details -->
+    <div class="card mt-3">
+        <div class="card-header bg-secondary text-white"><b>Product Details</b></div>
+        <div class="card-body">
+            <button type="button" class="btn btn-primary mb-2" onclick="openProductLookup()">Add Product</button>
+            <div class="product-details-container">
+                <table class="table table-bordered product-details-table" id="productTable">
+                    <thead>
+                        <tr>
+                            <th>Product Code</th>
+                            <th>Description</th>
+                            <th>Order Quantity</th>
+                            <th>Pack Type</th>
+                            <th>Despatch Quantity</th>
+                            <th>Invoice Quantity</th>
+                            <th>Rate</th>
+                            <th>Value</th>
+                            <th>Tax%</th>
+                            <th>Tax Amount</th>
+                            <th>Invoice Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Lookup Modal -->
+    <div class="modal fade" id="productLookupModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <!-- Increased Modal Size -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Product</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Scrollable Table -->
+                    <div class="lookup-table-container">
+                        <table class="table table-bordered" id="lookupTable">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Product Code</th>
+                                    <th>Description</th>
+                                    <th>Order Quantity</th>
+                                    <th>Pack Type</th>
+                                    <th>Rate</th>
+                                    <th>Despatch Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="addSelectedProducts()">OK</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Summary -->
+    <div class="card mt-3">
+        <div class="card-header bg-success text-white"><b>Invoice Summary</b></div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <label><b>Total Value</b></label>
+                    <input type="number" class="form-control" id="TotValue" name="TotValue" required step="0.01" readonly />
+                </div>
+                <div class="col-md-4">
+                    <label><b>Total GST</b></label>
+                    <input type="number" class="form-control" id="TotGST" name="TotGST" required step="0.01" readonly />
+                </div>
+
+                <div class="col-md-4">
+                    <label><b>Freight Amount</b></label>
+                    <input type="number" class="form-control" id="FreightAmount" name="FreightAmount" step="0.01" />
+                </div>
+
+                <div class="col-md-4">
+                    <label><b>Other Amount</b></label>
+                    <input type="number" class="form-control" id="OtherAmount" name="OtherAmount" step="0.01" />
+                </div>
+
+                <div class="col-md-4">
+                    <label><b>Round Off Amount</b></label>
+                    <input type="number" class="form-control" id="RoundOfAmount" name="RoundOfAmount" step="0.01" />
+                </div>
+
+                <div class="col-md-4">
+                    <label><b>Total Invoice Amount</b></label>
+                    <input type="number" class="form-control" id="TotInvoiceAmount" name="TotInvoiceAmount" required step="0.01" readonly />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<button type="button" class="btn btn-success mt-3" onclick="saveInvoice()">Save</button>
+<button type="button" class="btn btn-danger mt-3" onclick="cancelInvoice()">Cancel</button>
+
+
+<!-- Include Bootstrap & jQuery (if not already included) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.3/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $("#DespatchAdviceNumber").change(function () {
+            var despatchId = $(this).val();
+            if (despatchId) {
+                $.ajax({
+                    url: '/Invoice/GetDespatchDetails',
+                    type: 'GET',
+                    data: { despatchId: despatchId },
+                    success: function (data) {
+                        if (data) {
+                            $("#CustomerName").val(data.CustomerName);
+                            $("#GSTIN").val(data.GSTIN);
+                            $("#DeliveryAddress").val(data.DeliveryAddress);
+                            $("#VehicleNumber").val(data.VehicleNumber);
+
+                            // Fetch payment mode & terms if customer exists in Orders table
+                            $.ajax({
+                                url: '/Invoice/GetCustomerPaymentDetails',
+                                type: 'GET',
+                                data: { customerName: data.CustomerName },
+                                success: function (paymentData) {
+                                    if (paymentData) {
+                                        $("#PayMode").val(paymentData.PayMode);
+                                        $("#PaymentTerms").val(paymentData.PaymentTerms);
+                                    } else {
+                                        $("#PayMode").val("");
+                                        $("#PaymentTerms").val("");
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            } else {
+                $("#CustomerName, #GSTIN, #DeliveryAddress, #VehicleNumber, #PayMode, #PaymentTerms").val("");
+            }
+        });
+    });
+
+    function removeRow(button) {
+        $(button).closest("tr").remove();
+    }
+
+    function saveInvoice() {
+        alert("Save button clicked!"); // Debugging step
+
+        console.log("InvoiceDate:", $("#InvoiceDate").val());
+        console.log("CustomerName:", $("#CustomerName").val());
+        console.log("GSTIN:", $("#GSTIN").val());
+
+        // Validate required fields BEFORE creating invoice object
+        if (!$("#InvoiceDate").val() || !$("#CustomerName").val().trim() || !$("#GSTIN").val().trim()) {
+            alert("Please fill all required fields before submitting.");
+            return;
+        }
+
+        // Collect invoice data
+        var invoice = {
+            InvoiceNumber: $("#InvoiceNumber").val() ? parseInt($("#InvoiceNumber").val()) : 0,
+            InvoiceDate: $("#InvoiceDate").val() ? $("#InvoiceDate").val() : null,
+            DespatchAdviceNumber: $("#DespatchAdviceNumber").val() || null,
+            CustomerName: $("#CustomerName").val().trim() || null,
+            GSTIN: $("#GSTIN").val().trim() || null,
+            DeliveryAddress: $("#DeliveryAddress").val() || null,
+            VehicleNumber: $("#VehicleNumber").val() || null,
+            PayMode: $("#PayMode").val() || null,
+            PaymentTerms: $("#PaymentTerms").val() || null,
+            BankName: $("#BankName").val() || null,
+            TotValue: $("#TotValue").val() ? parseFloat($("#TotValue").val()) : 0,
+            TotGST: $("#TotGST").val() ? parseFloat($("#TotGST").val()) : 0,
+            FreightAmount: $("#FreightAmount").val() ? parseFloat($("#FreightAmount").val()) : 0,
+            OtherAmount: $("#OtherAmount").val() ? parseFloat($("#OtherAmount").val()) : 0,
+            RoundOfAmount: $("#RoundOfAmount").val() ? parseFloat($("#RoundOfAmount").val()) : 0,
+            TotInvoiceAmount: $("#TotInvoiceAmount").val() ? parseFloat($("#TotInvoiceAmount").val()) : 0
+        };
+
+        // Collect invoice details from table
+        var invoiceDetails = [];
+        $("#productTable tbody tr").each(function () {
+            var row = $(this);
+            var detail = {
+                ProductCode: row.find("td:eq(0) input").val() || row.find("td:eq(0)").text(),
+                ProductDescription: row.find("td:eq(1) input").val() || row.find("td:eq(1)").text(),
+                OrderQuantity: row.find("td:eq(2) input").val() ? parseInt(row.find("td:eq(2) input").val()) : 0,
+                PackType: row.find("td:eq(3) input").val() || row.find("td:eq(3)").text(),
+                DespatchQuantity: row.find("td:eq(4) input").val() ? parseInt(row.find("td:eq(4) input").val()) : 0,
+                InvoiceQuantity: row.find("td:eq(5) input").val() ? parseInt(row.find("td:eq(5) input").val()) : 0,
+                Rate: row.find("td:eq(6) input").val() ? parseFloat(row.find("td:eq(6) input").val()) : 0,
+                Val: row.find("td:eq(7) input").val() ? parseFloat(row.find("td:eq(7) input").val()) : 0,
+                TaxPercentage: row.find("td:eq(8) input").val() ? parseFloat(row.find("td:eq(8) input").val()) : 0,
+                TaxAmount: row.find("td:eq(9) input").val() ? parseFloat(row.find("td:eq(9) input").val()) : 0,
+                InvoiceAmount: row.find("td:eq(10) input").val() ? parseFloat(row.find("td:eq(10) input").val()) : 0
+            };
+            invoiceDetails.push(detail);
+        });
+
+        console.log("Invoice Data Sent:", invoice);
+        console.log("Invoice Details Sent:", invoiceDetails);
+
+        // Send data via AJAX
+        $.ajax({
+            url: "/Invoice/SaveInvoice",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ invoice: invoice, invoiceDetails: invoiceDetails }),
+            success: function (response) {
+                if (response.success) {
+                    alert("Invoice saved successfully!");
+                    location.reload();
+                } else {
+                    console.log("Error:", response.message);
+                    alert("Error: " + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error, xhr.responseText);
+                alert("AJAX request failed: " + xhr.responseText);
+            }
+        });
+    }
+
+    function cancelInvoice() {
+        alert("Invoice Cancelled Successfully");
+         window.location.href = '@Url.Action("InvoiceDelete", "Invoice")';
+    }
+
+    function openProductLookup() {
+        var despatchId = $("#DespatchAdviceNumber").val();
+        if (despatchId) {
+            $.get('/Invoice/GetDespatchProducts', { despatchId: despatchId }, function (data) {
+                var tbody = "";
+                $.each(data, function (i, item) {
+                    tbody += `<tr>
+                    <td><input type='checkbox' class='selectProduct' value='${JSON.stringify(item)}'></td>
+                    <td>${item.ProductCode}</td>
+                    <td>${item.ProductDescription}</td>
+                    <td>${item.OrderQuantity}</td>
+                    <td>${item.PackType}</td>
+                    <td>${item.Rate}</td>
+                    <td>${item.DespatchQuantity}</td>
+                </tr>`;
+                });
+                $("#lookupTable tbody").html(tbody);
+                $("#productLookupModal").modal("show"); // OPEN MODAL HERE
+            });
+        } else {
+            alert("Please select a Despatch Advice Number first.");
+        }
+    }
+
+    function addSelectedProducts() {
+        $(".selectProduct:checked").each(function () {
+            var product = JSON.parse($(this).val());
+            var newRow = `<tr>
+            <td><input type="text" name="ProductCode" class="form-control" value="${product.ProductCode}" readonly /></td>
+            <td><input type="text" name="ProductDescription" class="form-control" value="${product.ProductDescription}" readonly /></td>
+            <td><input type="number" name="OrderQuantity" class="form-control" value="${product.OrderQuantity}" readonly /></td>
+            <td><input type="text" name="PackType" class="form-control" value="${product.PackType}" readonly /></td>
+            <td><input type="number" name="DespatchQuantity" class="form-control" value="${product.DespatchQuantity}" readonly /></td>
+            <td><input type="number" name="InvoiceQuantity" class="form-control" value="" required /></td>
+            <td><input type="number" name="Rate" class="form-control" value="${product.Rate}" required /></td>
+            <td><input type="number" name="Val" class="form-control" value="" required/></td>
+            <td><input type="number" name="TaxPercentage" class="form-control" required /></td>
+            <td><input type="number" name="TaxAmount" class="form-control" required /></td>
+            <td><input type="number" name="InvoiceAmount" class="form-control" required /></td>
+            <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button></td>
+        </tr>`;
+            $("#productTable tbody").append(newRow);
+        });
+        $("#productLookupModal").modal("hide"); // CLOSE MODAL AFTER SELECTION
+    }
+
+    function closeModal() {
+        $('#productLookupModal').modal('hide'); // Manually close the modal
+    }
+
+
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        function updateRowValues(element) {
+            let row = element.closest("tr");
+
+            // Retrieve Invoice Quantity, Rate, and Tax Percentage values
+            let invoiceQty = parseFloat(row.querySelector("input[name='InvoiceQuantity']").value) || 0;
+            let rate = parseFloat(row.querySelector("input[name='Rate']").value) || 0;
+            let taxPercentage = parseFloat(row.querySelector("input[name='TaxPercentage']").value) || 0;
+
+            // Calculate Value (InvoiceQuantity * Rate)
+            let calculatedValue = invoiceQty * rate;
+            let valueField = row.querySelector("input[name='Val']");
+            if (valueField) {
+                valueField.value = calculatedValue.toFixed(2);
+            }
+
+            // Calculate Tax Amount (Value * Tax Percentage / 100)
+            let taxAmount = (calculatedValue * taxPercentage) / 100;
+            let taxAmountField = row.querySelector("input[name='TaxAmount']");
+            if (taxAmountField) {
+                taxAmountField.value = taxAmount.toFixed(2);
+            }
+
+            // Calculate Invoice Amount (Value + Tax Amount)
+            let invoiceAmount = calculatedValue + taxAmount;
+            let invoiceAmountField = row.querySelector("input[name='InvoiceAmount']");
+            if (invoiceAmountField) {
+                invoiceAmountField.value = invoiceAmount.toFixed(2);
+            }
+
+            // Update Total Value, Total GST, and Total Invoice Amount
+            updateTotals();
+        }
+
+        function updateTotals() {
+            let totalValue = 0;
+            let totalGST = 0;
+
+            document.querySelectorAll("#productTable tbody tr").forEach(function (row) {
+                let value = parseFloat(row.querySelector("input[name='Val']").value) || 0;
+                let taxAmount = parseFloat(row.querySelector("input[name='TaxAmount']").value) || 0;
+
+                totalValue += value;
+                totalGST += taxAmount;
+            });
+
+            // Set calculated totals
+            document.getElementById("TotValue").value = totalValue.toFixed(2);
+            document.getElementById("TotGST").value = totalGST.toFixed(2);
+
+            // Update Total Invoice Amount
+            calculateInvoiceTotal();
+        }
+
+        function calculateInvoiceTotal() {
+            let totalValue = parseFloat(document.getElementById("TotValue").value) || 0;
+            let totalGST = parseFloat(document.getElementById("TotGST").value) || 0;
+            let freightAmount = parseFloat(document.getElementById("FreightAmount").value) || 0;
+            let otherAmount = parseFloat(document.getElementById("OtherAmount").value) || 0;
+            let roundOffAmount = parseFloat(document.getElementById("RoundOfAmount").value) || 0;
+
+            let totalInvoiceAmount = totalValue + totalGST + freightAmount + otherAmount + roundOffAmount;
+
+            // Update the Total Invoice Amount field
+            document.getElementById("TotInvoiceAmount").value = totalInvoiceAmount.toFixed(2);
+        }
+
+        // Event listener for product table changes (auto-calculated fields)
+        document.querySelector("#productTable").addEventListener("input", function (event) {
+            if (["InvoiceQuantity", "Rate", "TaxPercentage"].includes(event.target.name)) {
+                updateRowValues(event.target);
+            }
+        });
+
+        // Event listeners for additional charges
+        document.getElementById("FreightAmount").addEventListener("input", calculateInvoiceTotal);
+        document.getElementById("OtherAmount").addEventListener("input", calculateInvoiceTotal);
+        document.getElementById("RoundOfAmount").addEventListener("input", calculateInvoiceTotal);
+
+        // Initial calculation when page loads
+        updateTotals();
+    });
+</script>
+
+<style>
+    /* Container to enable scrolling */
+    .product-details-container {
+        max-height: 400px; /* Adjust height as needed */
+        overflow-y: auto;
+        overflow-x: auto;
+        border: 1px solid #ddd;
+        padding: 5px;
+    }
+
+    /* Styling for the table */
+    .product-details-table {
+        width: 100%;
+        min-width: 1200px; /* Ensures all columns fit */
+        border-collapse: collapse;
+    }
+
+        .product-details-table th,
+        .product-details-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            white-space: nowrap; /* Prevents text from wrapping */
+        }
+
+            /* Set column widths for better visibility */
+            .product-details-table th:nth-child(1),
+            .product-details-table td:nth-child(1) {
+                min-width: 120px;
+            }
+
+            .product-details-table th:nth-child(2),
+            .product-details-table td:nth-child(2) {
+                min-width: 200px;
+            }
+
+            .product-details-table th:nth-child(3),
+            .product-details-table td:nth-child(3) {
+                min-width: 140px;
+            }
+
+            .product-details-table th:nth-child(4),
+            .product-details-table td:nth-child(4) {
+                min-width: 140px;
+            }
+
+            .product-details-table th:nth-child(5),
+            .product-details-table td:nth-child(5) {
+                min-width: 160px;
+            }
+
+            .product-details-table th:nth-child(6),
+            .product-details-table td:nth-child(6) {
+                min-width: 160px;
+            }
+
+            .product-details-table th:nth-child(7),
+            .product-details-table td:nth-child(7) {
+                min-width: 120px;
+            }
+
+            .product-details-table th:nth-child(8),
+            .product-details-table td:nth-child(8) {
+                min-width: 120px;
+            }
+
+            .product-details-table th:nth-child(9),
+            .product-details-table td:nth-child(9) {
+                min-width: 100px;
+            }
+
+            .product-details-table th:nth-child(10),
+            .product-details-table td:nth-child(10) {
+                min-width: 120px;
+            }
+
+            .product-details-table th:nth-child(11),
+            .product-details-table td:nth-child(11) {
+                min-width: 160px;
+            }
+
+            .product-details-table th:nth-child(12),
+            .product-details-table td:nth-child(12) {
+                min-width: 100px;
+            }
+
+    /* Increase modal width */
+    .modal-lg {
+        max-width: 90%; /* Adjust width of modal */
+    }
+
+    /* Modal Header Styling */
+    .modal-header {
+        background-color: #007bff;
+        color: white;
+        border-bottom: 2px solid #0056b3;
+    }
+
+    .modal-title {
+        font-weight: bold;
+    }
+
+    /* Lookup Table Styling */
+    .lookup-table-container {
+        max-height: 400px; /* Scrollable height */
+        overflow-y: auto;
+        overflow-x: auto;
+        border: 1px solid #ddd;
+    }
+
+    #lookupTable {
+        width: 100%;
+        min-width: 1000px; /* Ensures all columns fit */
+        border-collapse: collapse;
+    }
+
+        #lookupTable th,
+        #lookupTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+            /* Set specific column widths */
+            #lookupTable th:nth-child(1), #lookupTable td:nth-child(1) {
+                min-width: 80px;
+                text-align: center;
+            }
+
+            #lookupTable th:nth-child(2), #lookupTable td:nth-child(2) {
+                min-width: 150px;
+            }
+
+            #lookupTable th:nth-child(3), #lookupTable td:nth-child(3) {
+                min-width: 250px;
+            }
+
+            #lookupTable th:nth-child(4), #lookupTable td:nth-child(4) {
+                min-width: 140px;
+            }
+
+            #lookupTable th:nth-child(5), #lookupTable td:nth-child(5) {
+                min-width: 120px;
+            }
+
+            #lookupTable th:nth-child(6), #lookupTable td:nth-child(6) {
+                min-width: 100px;
+            }
+
+            #lookupTable th:nth-child(7), #lookupTable td:nth-child(7) {
+                min-width: 150px;
+            }
+
+    /* Modal Footer Buttons */
+    .modal-footer {
+        justify-content: center;
+        border-top: 2px solid #ddd;
+    }
+
+        .modal-footer .btn {
+            padding: 8px 20px;
+            font-weight: bold;
+        }
+</style>

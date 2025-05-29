@@ -1,0 +1,156 @@
+﻿@model Sales.Models.City
+
+@{
+    ViewBag.Title = "City Register";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-image: url('../../content/img7.jpg');
+            background-color: antiquewhite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: auto;
+        }
+
+        .register-container {
+            width: 300px;
+            padding: 20px;
+            background-color: azure;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .form-label {
+            font-weight: bold;
+        }
+
+        .btn-custom {
+            background-color: mediumseagreen;
+            color: white;
+        }
+
+            .btn-custom:hover {
+                background-color: darkgreen;
+            }
+
+        .btn-cancel {
+            background-color: palevioletred;
+            color: white;
+        }
+
+            .btn-cancel:hover {
+                background-color: red;
+            }
+
+        .btn-back {
+            background-color: cornflowerblue;
+            color: white;
+        }
+
+            .btn-back:hover {
+                background-color: darkblue;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="register-container">
+        <h3 class="text-center mb-4">Register City</h3>
+
+        @using (Html.BeginForm())
+        {
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.CityName, htmlAttributes: new { @class = "form-label" })
+                @Html.TextBoxFor(m => m.CityName, new { @class = "form-control", placeholder = "Enter City Name" })
+            </div>
+
+            <div class="form-group text-center">
+                <button type="submit" class="btn btn-custom btn-lg mt-3" id="btnSave">Save</button>
+            </div>
+
+            <div class="form-group text-center mt-3">
+                <a href="#" class="btn btn-cancel btn-lg" id="btnCancel">Cancel</a>
+            </div>
+        }
+    </div>
+
+
+    <!-- Modal Template -->
+    <div class="modal fade" id="popupModal" tabindex="-1" aria-labelledby="popupModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="popupModalLabel">Notification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="popupMessage"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="modalCloseButton" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Cancel confirmation -->
+    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Message</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalMessage">
+                    <!-- Message will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-back" id="modalOkButton" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        // Show popup modal if there's a message
+        window.onload = function () {
+            var message = "@TempData["Message"]";
+            if (message) {
+                document.getElementById("popupMessage").innerText = message;
+                var modal = new bootstrap.Modal(document.getElementById("popupModal"));
+                modal.show();
+            }
+        };
+
+        // Cancel button logic
+        document.getElementById("btnCancel").addEventListener("click", function (e) {
+            e.preventDefault();  // Prevent the default anchor behavior
+            const modal = new bootstrap.Modal(document.getElementById("messageModal"));
+            document.getElementById("modalMessage").textContent = "City registration cancelled.";
+            modal.show();
+
+            // Handle the redirect logic when the modal's OK button is clicked
+            document.getElementById("modalOkButton").addEventListener("click", function () {
+                window.location.href = '@Url.Action("CityEditDelete", "City")';  // Redirect after OK button click
+            });
+        });
+    </script>
+
+</body>
+</html>

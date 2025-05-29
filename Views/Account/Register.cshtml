@@ -1,0 +1,163 @@
+﻿@model Sales.Models.User
+
+@{
+    ViewBag.Title = "Register";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-image: url('../../content/img10.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .register-container {
+            text-align: left;
+            max-width: 330px;
+            max-height: 400px; /* Reduced height */
+            background-color: rgba(255, 255, 253, 0.6);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: auto; /* Changed from 'scroll' to 'auto' for better scrolling */
+            box-shadow: 0 0 15px rgba(0, 0.9, 0, 0.9);
+        }
+
+        .register-header {
+            background-color: darkblue;
+            color: floralwhite;
+            padding: 5px; /* Slightly increased padding for better spacing */
+            text-align: center;
+            font-size: 12px; /* Reduced font size */
+            font-weight: bold; /* Makes text more readable */
+        }
+        .form-label {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background-color: palevioletred;
+            border: none;
+            width: 100%;
+        }
+
+            .btn-primary:hover {
+                background-color: #0056b3;
+            }
+
+        .alert-custom {
+            font-size: 16px;
+        }
+
+        .back-btn {
+            background-color: aquamarine; /* Warm Brown */
+            color: black; /* White text */
+            border: none; /* No border */
+            padding: 5px 20px; /* Adjust spacing */
+            border-radius: 5px; /* Rounded corners */
+            font-size: 16px; /* Adjust font size */
+            cursor: pointer; /* Pointer cursor on hover */
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+        }
+
+            .back-btn:hover {
+                background-color: azure; /* Darker Brown for hover */
+                transform: scale(1.05); /* Slightly larger on hover */
+            }
+
+            .back-btn:active {
+                background-color: #6c4f29; /* Even darker Brown for active state */
+                transform: scale(0.95); /* Slightly smaller on click */
+            }
+
+    </style>
+</head>
+<body>
+
+    <center>
+        <div class="register-container">
+
+            <div class="register-header">
+                <h4>CREATE AN ACCOUNT</h4>
+            </div>
+
+            <!-- Display TempData Alert Messages -->
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-info alert-custom mt-3" role="alert">
+                    @TempData["Message"]
+                </div>
+            }
+
+            @using (Html.BeginForm())
+            {
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="p-4">
+                    <div class="form-group">
+                        @Html.Label("User Name", htmlAttributes: new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", placeholder = "Enter your username" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.Label("Company Name", htmlAttributes: new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.CompanyName, new { @class = "form-control", placeholder = "Enter your company name" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.Label("Phone Number", htmlAttributes: new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", placeholder = "Enter your phone number" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.State, htmlAttributes: new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.State, new { @class = "form-control", placeholder = "Enter your state" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.City, htmlAttributes: new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.City, new { @class = "form-control", placeholder = "Enter your city" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Pincode, htmlAttributes: new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Pincode, new { @class = "form-control", placeholder = "Enter your pincode" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Password, htmlAttributes: new { @class = "form-label" })
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Enter your password" })
+                    </div>
+
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary btn-lg mt-3">Register</button>
+                    </div>
+                </div>
+            }
+        </div>
+        <br />
+        <center>
+            <button type="button" class="back-btn" onclick="location.href='@Url.Action("Login", "Account")'">
+                Back
+            </button>
+        </center>
+    </center>
+</body>
+</html>

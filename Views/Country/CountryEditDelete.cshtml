@@ -1,0 +1,359 @@
+﻿@model IEnumerable<Sales.Models.Country>
+
+@{
+    ViewBag.Title = "Country Edit and Delete";
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+}
+
+<h2 style="background-color: #007bb5; color: white; padding: 15px; text-align: center; border-radius: 8px;">COUNTRY</h2>
+
+<style>
+    /* Layout Styling */
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px;
+    }
+
+    .search-box {
+        width: 200px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .btn-add {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+        .btn-add:hover {
+            background-color: #45a049;
+        }
+
+    /* Table Styling */
+    .grid-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px auto;
+    }
+
+        .grid-table th,
+        .grid-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .grid-table th {
+            background-color: black;
+            color: white;
+        }
+
+        .grid-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .grid-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-edit {
+        background-color: #ff9800;
+        color: white;
+    }
+
+        .btn-edit:hover {
+            background-color: #fb8c00;
+        }
+
+    .btn-delete {
+        background-color: #f44336;
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background-color: #e53935;
+        }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
+        gap: 10px;
+    }
+
+        .pagination button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .pagination button:disabled {
+                background-color: #ccc;
+                cursor: not-allowed;
+            }
+
+        .pagination span {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+    .btn-success {
+        background-color: #ff9800;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+    }
+
+        .btn-success:hover {
+            background-color: #fb8c00;
+        }
+
+    .btn-danger {
+        background-color: #f44336;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+    }
+
+        .btn-danger:hover {
+            background-color: #e53935;
+        }
+
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 14px;
+    }
+
+    .back-btn {
+        background-color: aquamarine; /* Warm Brown */
+        color: black; /* White text */
+        border: none; /* No border */
+        padding: 5px 20px; /* Adjust spacing */
+        border-radius: 5px; /* Rounded corners */
+        font-size: 16px; /* Adjust font size */
+        cursor: pointer; /* Pointer cursor on hover */
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+        transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+    }
+
+        .back-btn:hover {
+            background-color: azure; /* Darker Brown for hover */
+            transform: scale(1.05); /* Slightly larger on hover */
+        }
+
+        .back-btn:active {
+            background-color: #6c4f29; /* Even darker Brown for active state */
+            transform: scale(0.95); /* Slightly smaller on click */
+        }
+</style>
+
+<div class="header-actions">
+    <input type="text" id="searchBox" class="search-box" placeholder="Search by Country name...">
+    <button class="btn-add" onclick="window.location.href='/Country/Country'">Add New Country</button>
+</div>
+
+<table class="grid-table" id="gridTable">
+    <thead>
+        <tr>
+            <th>Country ID</th>
+            <th>Country Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var country in Model)
+        {
+            <tr id="row-@country.CountryId">
+                <td>@country.CountryId</td>
+                <td>@country.CountryName</td>
+                <td>
+                    <button class="btn btn-success btn-sm edit-btn"
+                            data-id="@country.CountryId"
+                            data-name="@country.CountryName"
+                            style="margin-right: 5px;">
+                        Edit
+                    </button>
+                    <button class="btn btn-danger btn-sm delete-btn"
+                            data-id="@country.CountryId">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<button type="button" class="back-btn" onclick="location.href='@Url.Action("Success", "Account")'">
+            Back
+        </button>
+<!-- Pagination -->
+<div class="pagination">
+    @if (ViewBag.CurrentPage > 1)
+    {
+        <a href="@Url.Action("CountryEditDelete", "Country", new { page = ViewBag.CurrentPage - 1 })" class="btn btn-secondary">Back</a>
+    }
+
+    <span>Page @currentPage of @totalPages</span>
+
+    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+    {
+        <a href="@Url.Action("CountryEditDelete", "Country", new { page = ViewBag.CurrentPage + 1 })" class="btn btn-primary">Next</a>
+    }
+</div>
+
+
+<!-- Edit Country Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #4caf50; color: white;">
+                <h5 class="modal-title">Edit Country</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editCountryId">
+                <div class="mb-3">
+                    <label for="editCountryName" class="form-label">Country Name</label>
+                    <input type="text" id="editCountryName" class="form-control" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="saveEdit" class="btn btn-edit">Save</button>
+                <button id="cancelEdit" class="btn btn-delete">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Country Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #f44336; color: white;">
+                <h5 class="modal-title">Delete Country</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this country?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmDelete" class="btn btn-delete">Delete</button>
+                <button id="cancelDelete" class="btn btn-edit">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let editCountryId = null;
+
+            // Search functionality
+            $("#searchBox").on("input", function () {
+                const searchValue = $(this).val().toLowerCase();
+                $("#gridTable tbody tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1);
+                });
+
+                // Move matching rows to the top of the table
+                const rows = $("#gridTable tbody tr").get();
+                rows.sort(function (a, b) {
+                    const aText = $(a).text().toLowerCase();
+                    const bText = $(b).text().toLowerCase();
+                    return aText.includes(searchValue) ? -1 : bText.includes(searchValue) ? 1 : 0;
+                });
+                $.each(rows, function (index, row) {
+                    $("#gridTable tbody").append(row);
+                });
+            });
+
+            // Open Edit Modal
+            $(".edit-btn").click(function () {
+                editCountryId = $(this).data("id");
+                $.getJSON('@Url.Action("GetCountry", "Country")', { id: editCountryId }, function (response) {
+                    if (response.success) {
+                        $("#editCountryId").val(response.country.CountryId);
+                        $("#editCountryName").val(response.country.CountryName);
+                        $("#editModal").modal("show");
+                    } else {
+                        alert(response.message);
+                    }
+                });
+            });
+
+            // Save Edited Country
+            $("#saveEdit").click(function () {
+                const countryData = {
+                    CountryId: $("#editCountryId").val(),
+                    CountryName: $("#editCountryName").val()
+                };
+
+                $.post('@Url.Action("EditCountry", "Country")', countryData, function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                });
+            });
+
+            // Open Delete Modal
+            $(".delete-btn").click(function () {
+                editCountryId = $(this).data("id");
+                $("#deleteModal").modal("show");
+            });
+
+            // Confirm Delete
+            $("#confirmDelete").click(function () {
+                $.post('@Url.Action("DeleteCountry", "Country")', { id: editCountryId }, function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                });
+            });
+
+            // Cancel Edit Modal
+            $("#cancelEdit").click(function () {
+                $("#editModal").modal("hide");
+            });
+
+            // Cancel Delete Modal
+            $("#cancelDelete").click(function () {
+                $("#deleteModal").modal("hide");
+            });
+        });
+    </script>
+}

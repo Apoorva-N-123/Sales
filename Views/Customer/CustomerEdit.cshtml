@@ -1,0 +1,176 @@
+﻿@model Sales.Models.Customer
+
+@{
+    ViewBag.Title = "Edit Customer";
+}
+
+<h2>Edit Customer</h2>
+
+@using (Html.BeginForm("CustomerEdit1", "Customer", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.CustomerId) <!-- Ensure the CustomerId is passed back for updating -->
+
+    <div class="card">
+        <div class="card-body">
+            <div class="form-group">
+                @Html.LabelFor(model => model.CustomerName, "Customer Name")
+                @Html.TextBoxFor(model => model.CustomerName, new { @class = "form-control", placeholder = "Enter Customer Name" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.AddressLine1, "Address Line 1")
+                @Html.TextBoxFor(model => model.AddressLine1, new { @class = "form-control", placeholder = "Enter Address Line 1" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.AddressLine2, "Address Line 2")
+                @Html.TextBoxFor(model => model.AddressLine2, new { @class = "form-control", placeholder = "Enter Address Line 2" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.AddressLine3, "Address Line 3")
+                @Html.TextBoxFor(model => model.AddressLine3, new { @class = "form-control", placeholder = "Enter Address Line 3" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.City)
+                @Html.TextBoxFor(model => model.City, new { @class = "form-control", placeholder = "Enter City" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.State)
+                @Html.TextBoxFor(model => model.State, new { @class = "form-control", placeholder = "Enter State" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Country)
+                @Html.TextBoxFor(model => model.Country, new { @class = "form-control", placeholder = "Enter Country" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Pincode, "Pincode")
+                @Html.TextBoxFor(model => model.Pincode, new { @class = "form-control", placeholder = "Enter Pincode" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.GSTIN, "GSTIN")
+                @Html.TextBoxFor(model => model.GSTIN, new { @class = "form-control", placeholder = "Enter GSTIN" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.PhoneNumber, "Phone Number")
+                @Html.TextBoxFor(model => model.PhoneNumber, new { @class = "form-control", placeholder = "Enter Phone Number" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Email)
+                @Html.TextBoxFor(model => model.Email, new { @class = "form-control", placeholder = "Enter Email" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.WebsiteLink, "Website Link")
+                @Html.TextBoxFor(model => model.WebsiteLink, new { @class = "form-control", placeholder = "Enter Website Link" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Remarks)
+                @Html.TextAreaFor(model => model.Remarks, new { @class = "form-control", rows = 3, placeholder = "Enter Remarks" })
+            </div>
+
+            <div class="form-group text-right">
+                <button type="submit" class="btn btn-success">Save</button>
+                <a href="@Url.Action("CustomerEditDelete", "Customer")" class="btn btn-secondary">Cancel</a>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    body {
+        background-color: #f9f9f9;
+        font-family: Arial, sans-serif;
+    }
+
+    .card {
+        margin: 20px auto;
+        padding: 30px;
+        max-width: 700px;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease-in-out;
+    }
+
+        .card:hover {
+            transform: scale(1.01);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: inline-block;
+        color: #333333;
+    }
+
+    .form-control {
+        border: 1px solid #cccccc;
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 14px;
+        width: 100%;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+        .form-control:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+        }
+
+    textarea.form-control {
+        resize: none;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 5px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .btn-success {
+        background-color: #4caf50;
+        border: none;
+        color: white;
+    }
+
+        .btn-success:hover {
+            background-color: #45a049;
+            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+        }
+
+    .btn-secondary {
+        background-color: #e0e0e0;
+        border: none;
+        color: #333333;
+    }
+
+        .btn-secondary:hover {
+            background-color: #d6d6d6;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .form-group.text-right {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+</style>

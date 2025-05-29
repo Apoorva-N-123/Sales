@@ -1,0 +1,254 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-image: url('../../content/img14.jpg');
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f7f7;
+            line-height: 2;
+        }
+
+        /* Navbar styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to right, #007bb5, #2575fc);
+            padding: 0.5rem;
+            box-shadow: 0 2px 10px #333;
+            position:center;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* Dropdown container */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            margin: 0 0.5rem;
+        }
+
+        /* Main navigation links */
+        .navbar a {
+            color: white;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            display: block;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        /* Hover effect for main links */
+        .navbar > .dropdown > a:hover {
+            
+            transform: translateY(-2px);
+        }
+
+        /* Dropdown content */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin-top: 0.5rem;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        /* Show dropdown on hover */
+        .dropdown:hover .dropdown-content {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Dropdown links */
+        .dropdown-content a {
+            color: #333;
+            padding: 0.8rem 1.2rem;
+            text-align: left;
+            border-radius: 0;
+            border-bottom: 1px solid #eee;
+            transition: padding-left 0.3s ease;
+        }
+
+            .dropdown-content a:hover {
+                background-color: #f8f9fa;
+                color: #2c3e50;
+                padding-left: 1.5rem;
+            }
+
+        /* Sub-dropdown styles */
+        .dropdown .sub-dropdown {
+            position: relative;
+        }
+
+        .sub-dropdown-content {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            min-width: 200px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            background-color: white;
+            margin-left: -1px; /* Ensure no gap between dropdown and sub-dropdown */
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        /* Show sub-dropdown on hover */
+        .sub-dropdown:hover .sub-dropdown-content {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Dropdown and Sub-dropdown indicator */
+        .dropdown > a::after, .sub-dropdown > a::after {
+            content: '▾';
+            margin-left: 0.5rem;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .dropdown:hover > a::after, .sub-dropdown:hover > a::after {
+            transform: rotate(180deg);
+        }
+
+        /* Logout button */
+        .logout {
+            margin-right: 1rem;
+            background-color: crimson;
+            color: white;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+            .logout:hover {
+                background-color: darkred;
+            }
+
+
+    </style>
+
+
+</head>
+<body>
+    <div class="navbar">
+        <div class="dropdown">
+            <a href="#">Masters</a>
+            <div class="dropdown-content">
+                <a href="@Url.Action("CustomerEditDelete", "Customer")">Customer Master</a>
+                <a href="@Url.Action("productEditDelete", "Product")">Product Master</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <a href="#">Transactions</a>
+            <div class="dropdown-content">
+                <a href="@Url.Action("OrderEditDelete", "Order")">Order</a>
+                <a href="@Url.Action("EditDeleteDespatch", "Despatch")">Despatch</a>
+                <a href="@Url.Action("InvoiceDelete", "Invoice")">Invoice</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <a href="#">Setup</a>
+            <div class="dropdown-content">
+                <div class="sub-dropdown">
+                    <a href="#">General</a>
+                    <div class="sub-dropdown-content">
+                        <a href="@Url.Action("CityEditDelete", "City")">City</a>
+                        <a href="@Url.Action("StateEditDelete", "State")">State</a>
+                        <a href="@Url.Action("CountryEditDelete", "Country")">Country</a>
+                    </div>
+                </div>
+                <div class="sub-dropdown">
+                    <a href="#">Product Details</a>
+                    <div class="sub-dropdown-content">
+                        <a href="@Url.Action("CountEditDelete", "Count")">Count</a>
+                        <a href="@Url.Action("ProductTypeEditDelete", "ProductType")">Product Type</a>
+                        <a href="@Url.Action("KCSEditDelete", "KCS")">KCS</a>
+                        <a href="@Url.Action("VarietyEditDelete", "Variety")">Variety</a>
+                        <a href="@Url.Action("HSNEditDelete", "HSN")">HSN</a>
+                        <a href="@Url.Action("WHEditDelete", "WH")">WH</a>
+                    </div>
+                </div>
+                <div class="sub-dropdown">
+                <a href="#">Sales</a>
+                <div class="sub-dropdown-content">
+                    <a href="@Url.Action("PaymentEditDelete", "Payment")">Payment Terms</a>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="dropdown">
+            <a href="#">Reports</a>
+            <div class="dropdown-content">
+                <a href="@Url.Action("OrderReport", "Order")">Order Tracking</a>
+                <a href="@Url.Action("InvoiceReport", "Invoice")">Sales daybook</a>
+            </div>
+        </div>
+        <a href="@Url.Action("Login", "Account")" class="logout">Logout</a>
+    </div>
+
+    <script>document.querySelectorAll('.dropdown').forEach((dropdown) => {
+            let timeout;
+
+            // Show dropdown on hover
+            dropdown.addEventListener('mouseenter', () => {
+                clearTimeout(timeout);
+                const content = dropdown.querySelector('.dropdown-content');
+                if (content) {
+                    content.style.display = 'block';
+                    content.style.opacity = '1';
+                    content.style.transform = 'translateY(0)';
+                }
+            });
+
+            // Hide dropdown with delay
+            dropdown.addEventListener('mouseleave', () => {
+                timeout = setTimeout(() => {
+                    const content = dropdown.querySelector('.dropdown-content');
+                    if (content) {
+                        content.style.opacity = '0';
+                        content.style.transform = 'translateY(-10px)';
+                        setTimeout(() => {
+                            if (content.style.opacity === '0') {
+                                content.style.display = 'none';
+                            }
+                        }, 300); // Matches the CSS transition duration
+                    }
+                }, 200); // Delay for hiding dropdown
+            });
+        });</script>
+</body>
+</html>

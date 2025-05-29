@@ -1,0 +1,251 @@
+﻿@{
+    ViewBag.Title = "Order Report";
+}
+
+<h2>Order Report</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <label>From Date:</label>
+            <input type="date" id="fromDate" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label>To Date:</label>
+            <input type="date" id="toDate" class="form-control" />
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button id="btnShowOrders" class="btn btn-primary">Show Order Status</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Order Report -->
+<div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Order Report</h5>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered text-center" style="font-size: 12px;">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Order Date</th>
+                            <th>Order Reference</th>
+                            <th>Customer Name</th>
+                            <th>Product Code</th>
+                            <th>Product Description</th>
+                            <th>Order Quantity</th>
+                            <th>Order Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="downloadPDF">Download PDF</button>
+                <button type="button" class="btn btn-secondary" id="btnCloseModal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<center>
+    <button type="button" class="back-btn" onclick="location.href='@Url.Action("Success", "Account")'">
+        Back
+    </button>
+</center>
+<!-- jQuery (Ensure it's included before Bootstrap JS) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+<!-- FontAwesome for Download Icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<!-- jsPDF and html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#btnShowOrders").click(function () {
+                var fromDate = $("#fromDate").val();
+                var toDate = $("#toDate").val();
+
+                if (!fromDate || !toDate) {
+                    alert("Please select both dates.");
+                    return;
+                }
+                $.ajax({
+    url: '@Url.Action("GetOrderReport", "Order")',
+    type: 'POST',  // Change from 'GET' to 'POST'
+    contentType: "application/json",
+    data: JSON.stringify({ fromDate: fromDate, toDate: toDate }),
+    success: function (data) {
+        $("#orderTableBody").empty();
+        $.each(data, function (i, order) {
+            var statusColor = getStatusColor(order.OrderStatus);
+            $("#orderTableBody").append(`
+        <tr>
+            <td>${order.OrderDate}</td>
+            <td>${order.OrderReferenceNumber}</td>
+            <td>${order.CustomerName}</td>
+            <td>${order.ProductCode}</td>
+            <td>${order.ProductDescription}</td>
+            <td>${order.OrderQuantity}</td>
+            <td style="color: ${statusColor}; font-weight: bold;">${order.OrderStatus}</td>
+        </tr>
+    `);
+        });
+
+        $("#orderModal").modal("show");
+    }
+});
+            });
+            // Close button inside the modal
+            $("#btnCloseModal").click(function () {
+                $("#orderModal").modal("hide");
+            });
+
+            // Function to assign color based on Order Status
+            function getStatusColor(status) {
+                switch (status) {
+                    case "Delivered": return "green";  // Green for Delivered
+                    case "Processing": return "blue";  // Blue for Processing
+                    case "Shipped": return "red";      // Red for Shipped
+                    default: return "black";           // Default color
+                }
+            }
+        });
+
+        document.getElementById("downloadPDF").addEventListener("click", function () {
+            const { jsPDF } = window.jspdf;
+
+            let modalBody = document.querySelector("#orderModal .modal-body");
+
+            html2canvas(modalBody, { scale: 2 }).then(canvas => {
+                let imgData = canvas.toDataURL("image/png");
+                let doc = new jsPDF("p", "mm", "a4");
+
+                // Add Title
+                doc.setFont("helvetica", "bold");
+                doc.text("Order Report", 80, 10);
+
+                // Add Image (Modal Screenshot)
+                let imgWidth = 190;
+                let imgHeight = (canvas.height * imgWidth) / canvas.width;
+                doc.addImage(imgData, "PNG", 10, 20, imgWidth, imgHeight);
+
+                // Save the PDF
+                doc.save("Order_Report.pdf");
+            });
+        });
+
+    </script>
+}
+
+<style>
+    .back-btn {
+        background-color: aquamarine; /* Warm Brown */
+        color: black; /* White text */
+        border: none; /* No border */
+        padding: 5px 20px; /* Adjust spacing */
+        border-radius: 5px; /* Rounded corners */
+        font-size: 16px; /* Adjust font size */
+        cursor: pointer; /* Pointer cursor on hover */
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+        transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+    }
+
+        .back-btn:hover {
+            background-color: azure; /* Darker Brown for hover */
+            transform: scale(1.05); /* Slightly larger on hover */
+        }
+
+        .back-btn:active {
+            background-color: white; /* Even darker Brown for active state */
+            transform: scale(0.95); /* Slightly smaller on click */
+        }
+
+/* General Page Styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 20px;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Form Container */
+.container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    color: #555;
+}
+
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 10px 15px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+    padding: 10px 15px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.btn-secondary:hover {
+    background-color: #545b62;
+}
+
+/* Modal Styling */
+.modal-content {
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background-color: lightgrey;
+    color: black;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.modal-title {
+    font-weight: bold;
+}
+
+</style>

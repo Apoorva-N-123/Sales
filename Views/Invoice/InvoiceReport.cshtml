@@ -1,0 +1,408 @@
+﻿@{
+    ViewBag.Title = "Invoice Report";
+}
+
+<h2 class="invoice-heading">Sales Day Book</h2>
+
+<div class="container invoice-container">
+    <div class="row justify-content-center align-items-end">
+        <div class="col-md-3">
+            <label for="fromDate" class="form-label">From Date:</label>
+            <input type="date" id="fromDate" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label for="toDate" class="form-label">To Date:</label>
+            <input type="date" id="toDate" class="form-control">
+        </div>
+        <div class="col-md-3 text-center">
+            <button class="btn btn-primary btn-generate" onclick="fetchInvoiceReport()">
+                <i class="fas fa-file-invoice"></i> Generate Report
+            </button>
+        </div>
+    </div>
+
+    <br />
+
+    
+
+    <!-- Invoice Report Modal -->
+    <div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header d-flex justify-content-between align-items-center">
+                    <button type="button" class="btn btn-success" id="downloadReport">
+                        <i class="fa fa-download"></i> Download
+                    </button>
+                    <center><h5 class="modal-title mx-auto" id="invoiceModalLabel"><b>Sales Day Book</b></h5></center>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Customer Name</th>
+                                    <th>GSTIN</th>
+                                    <th>Product Code</th>
+                                    <th>Product Description</th>
+                                    <th>Invoice Quantity</th>
+                                    <th>Rate</th>
+                                    <th>Value</th>
+                                    <th>Tax %</th>
+                                    <th>Tax Amount</th>
+                                    <th>Invoice Amount</th>
+                                    <th>Freight Amount</th>
+                                    <th>Other Amount</th>
+                                    <th>Round Off</th>
+                                    <th>Total Invoice Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoiceTableBody">
+                                <!-- Data will be inserted here dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<center>
+    <button type="button" class="back-btn" onclick="location.href='@Url.Action("Success", "Account")'">
+        Back
+    </button>
+</center>
+<!-- jQuery (Ensure it's included before Bootstrap JS) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+<!-- FontAwesome for Download Icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<!-- jsPDF and html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+    function fetchInvoiceReport() {
+        var fromDate = document.getElementById("fromDate").value;
+        var toDate = document.getElementById("toDate").value;
+
+        if (!fromDate || !toDate) {
+            alert("Please select both dates.");
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("GetInvoiceReport", "Invoice")',
+            type: 'GET',
+            data: { fromDate: fromDate, toDate: toDate },
+            success: function (response) {
+                $("#invoiceTableBody").empty();
+
+                let groupedData = {};
+                response.invoiceData.forEach(function (data) {
+                    let rawDate = data.InvoiceDate ? data.InvoiceDate.trim() : null;
+                    let date = rawDate ? moment(rawDate, ["YYYY-MM-DD", "MM/DD/YYYY", "DD/MM/YYYY"]).format("DD/MM/YYYY") : "N/A";
+                    if (!groupedData[date]) {
+                        groupedData[date] = [];
+                    }
+                    groupedData[date].push(data);
+                });
+
+                let grandTotalValue = 0;
+                let grandTotalTaxAmount = 0;
+                let grandTotalInvoiceAmount = 0;
+
+                for (let date in groupedData) {
+                    let totalValue = 0;
+                    let totalTaxAmount = 0;
+                    let totalInvoiceAmount = 0;
+
+                    $("#invoiceTableBody").append(`
+                        <tr style="background-color: #28a745; color: white; font-weight: bold;">
+                            <td colspan="14">${date}</td>
+                        </tr>
+                    `);
+
+                    groupedData[date].forEach(function (data) {
+                        totalValue += parseFloat(data.Val);
+                        totalTaxAmount += parseFloat(data.TaxAmount);
+                        totalInvoiceAmount += parseFloat(data.InvoiceAmount);
+
+                        $("#invoiceTableBody").append(`
+                            <tr>
+                                <td>${data.CustomerName}</td>
+                                <td>${data.GSTIN}</td>
+                                <td>${data.ProductCode}</td>
+                                <td>${data.ProductDescription}</td>
+                                <td>${data.InvoiceQuantity}</td>
+                                <td>${data.Rate}</td>
+                                <td>${data.Val}</td>
+                                <td>${data.TaxPercentage}</td>
+                                <td>${data.TaxAmount}</td>
+                                <td>${data.InvoiceAmount}</td>
+                                <td>${data.FreightAmount}</td>
+                                <td>${data.OtherAmount}</td>
+                                <td>${data.RoundOfAmount}</td>
+                                <td>${data.TotInvoiceAmount}</td>
+                            </tr>
+                        `);
+                    });
+
+                    $("#invoiceTableBody").append(`
+    <tr style="background-color: #ffcccc; font-weight: bold; color: black;">
+        <td colspan="6" style="text-align:right;">Grand Total:</td>
+        <td style="color: red;">${totalValue.toFixed(2)}</td>
+        <td></td>
+        <td style="color: red;">${totalTaxAmount.toFixed(2)}</td>
+        <td style="color: red;">${totalInvoiceAmount.toFixed(2)}</td>
+        <td colspan="4"></td>
+    </tr>
+`);
+             }
+
+               $("#invoiceModal").modal("show");
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $(".close").click(function () {
+            $("#invoiceModal").modal("hide");
+        });
+    });
+
+    document.getElementById("downloadReport").addEventListener("click", function () {
+        if (confirm("Do you want to download this report?")) {
+            generatePDF();
+        }
+    });
+
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        let pdf = new jsPDF('l', 'mm', 'a4'); // Landscape mode
+
+        let invoiceTable = document.querySelector(".modal-body .table-responsive"); // Target the invoice table
+
+        html2canvas(invoiceTable, { scale: 2 }).then(canvas => {
+            let imgData = canvas.toDataURL('image/png');
+            let imgWidth = 280; // Fit width
+            let imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            // Add "Sales Day Book" title
+            pdf.setFontSize(18);
+            pdf.setFont("helvetica", "bold");
+            pdf.text("Sales Day Book", pdf.internal.pageSize.width / 2, 15, { align: "center" });
+
+            // Add table image below the heading
+            pdf.addImage(imgData, 'PNG', 10, 25, imgWidth, imgHeight);
+            pdf.save("Invoice_Report.pdf"); // Download PDF
+        });
+    }
+
+</script>
+<!-- FontAwesome for Icons (if needed) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+
+<style>
+
+    .back-btn {
+        background-color: aquamarine; /* Warm Brown */
+        color: black; /* White text */
+        border: none; /* No border */
+        padding: 5px 20px; /* Adjust spacing */
+        border-radius: 5px; /* Rounded corners */
+        font-size: 16px; /* Adjust font size */
+        cursor: pointer; /* Pointer cursor on hover */
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+        transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+    }
+
+        .back-btn:hover {
+            background-color: azure; /* Darker Brown for hover */
+            transform: scale(1.05); /* Slightly larger on hover */
+        }
+
+        .back-btn:active {
+            background-color:white; /* Even darker Brown for active state */
+            transform: scale(0.95); /* Slightly smaller on click */
+        }
+
+    /* Invoice Report Heading */
+    .invoice-heading {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    /* Container Styling */
+    .invoice-container {
+        
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Labels */
+    .form-label {
+        font-weight: bold;
+        color: #555;
+    }
+
+    /* Input Fields */
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        padding: 8px;
+    }
+
+    /* Generate Report Button */
+    .btn-generate {
+        font-size: 16px;
+        padding: 10px 20px;
+        margin-top: 10px;
+        background-color: #007bff;
+        border: none;
+        transition: 0.3s;
+    }
+
+        .btn-generate:hover {
+            background-color: #0056b3;
+        }
+
+   
+</style>
+
+<style>
+
+    .modal-dialog {
+        max-width: 80%; /* Expands modal to fit large tables */
+    }
+
+    .table {
+        font-size: 12px; /* Reduce text size for better fit */
+        table-layout: fixed; /* Helps manage column sizes */
+    }
+
+    th, td {
+        padding: 5px; /* Reduce padding to fit more data */
+        word-wrap: break-word; /* Ensures text wraps inside cells */
+    }
+
+    /* General Page Styles */
+    body {
+        background-color:whitesmoke;
+        font-family: Arial, sans-serif;       
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        margin: 20px auto;
+        background-color: rgba(255, 255, 253, 0.9);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Table Styles */
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+    }
+
+        .table th,
+        .table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: lightslategrey;
+            color: white;
+            font-weight: bold;
+        }
+
+    .table-striped tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+    }
+
+    /* Totals Row */
+    .day-total {
+        background-color: #f8d7da !important;
+        font-weight: bold;
+    }
+
+    .grand-total {
+        background-color: #ffc107 !important;
+        font-weight: bold;
+    }
+
+    /* Header Row (Date Grouping) */
+    .date-header {
+        background-color: #28a745 !important;
+        color: white;
+        font-weight: bold;
+    }
+
+    /* Buttons */
+    button {
+        padding: 8px 15px;
+        border: none;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+        button.view-report {
+            background-color: #28a745;
+            color: white;
+        }
+
+            button.view-report:hover {
+                background-color: #218838;
+            }
+
+        button.close-modal {
+            background-color: #dc3545;
+            color: white;
+        }
+
+            button.close-modal:hover {
+                background-color: #c82333;
+            }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+    }
+
+    .modal-title {
+        flex-grow: 1;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    #downloadReport {
+        margin-right: auto;
+    }
+
+    .close {
+        margin-left: auto;
+        font-size: 24px;
+    }
+</style>

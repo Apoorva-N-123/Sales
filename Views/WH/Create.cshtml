@@ -1,0 +1,201 @@
+﻿@model Sales.Models.WH
+
+@{
+    ViewBag.Title = "Create Warehouse";
+}
+
+<h2>Create Warehouse</h2>
+
+<style>
+    /* General page styling */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: beige;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 30px;
+        font-weight: 600;
+    }
+
+    /* Form container styling */
+    .container {
+        width: 100%;
+        max-width: 700px;
+        background-color: #ffffff;
+        padding: 35px;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        margin: auto;
+    }
+
+    /* Form Group */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    /* Label Styling */
+    label {
+        font-size: 1.1rem;
+        color: #555;
+        font-weight: 600;
+    }
+
+    /* Input Styling */
+    input.form-control, textarea.form-control {
+        font-size: 1rem;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        width: 100%;
+        transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        /* Focused Input */
+        input.form-control:focus, textarea.form-control:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+        }
+
+    /* Button Styling */
+    button.btn-primary {
+        background-color: #4caf50;
+        border-color: #4caf50;
+        color: white;
+        font-size: 1.1rem;
+        padding: 12px 25px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+        /* Button Hover */
+        button.btn-primary:hover {
+            background-color: #45a049;
+            border-color: #45a049;
+        }
+
+    /* Secondary Button */
+    button.btn-secondary {
+        background-color: #f1f1f1;
+        border: 1px solid #ddd;
+        color: #555;
+        font-size: 1.1rem;
+        padding: 12px 25px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+        /* Secondary Button Hover */
+        button.btn-secondary:hover {
+            background-color: #e2e2e2;
+            border-color: #ccc;
+        }
+
+    /* Modal Styling */
+    .modal-content {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        background-color: hotpink;
+        color: white;
+        border-radius: 12px 12px 0 0;
+        font-size: 1.2rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #ddd;
+        text-align: right;
+    }
+
+        /* Modal Button */
+        .modal-footer .btn-primary {
+            background-color: dodgerblue;
+            border-color: #4caf50;
+            color: white;
+            padding: 8px 20px;
+        }
+</style>
+
+@if (TempData["PopupMessage"] != null)
+{
+    <div id="popupModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@TempData["PopupType"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>@TempData["PopupMessage"]</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="popupOkButton">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<form action="/WH/Create" method="post">
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <label for="WHCode">Warehouse Code</label>
+        @Html.TextBoxFor(m => m.WHCode, new { @class = "form-control", @placeholder = "Enter Warehouse Code" })
+        @Html.ValidationMessageFor(m => m.WHCode, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+        <label for="WHDescription">Warehouse Description</label>
+        @Html.TextBoxFor(m => m.WHDescription, new { @class = "form-control", @placeholder = "Enter Description" })
+        @Html.ValidationMessageFor(m => m.WHDescription, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Save</button><br /><br />
+        <center><a href="/WH/Cancel" class="btn btn-secondary">Cancel</a></center>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Check if the popup modal exists on the page
+            if ($('#popupModal').length) {
+                // Show the modal
+                $('#popupModal').modal('show');
+            }
+
+            // Handle the "OK" button click event for both Save and Cancel popups
+            $('#popupOkButton').click(function () {
+                // Check if the popup message is about saving or canceling
+                if ("@TempData["PopupType"]" === "Success" || "@TempData["PopupType"]" === "warning") {
+                    // After clicking "OK" on success or warning, stay on the Create page
+                    $('#popupModal').modal('hide');
+                } else if ("@TempData["PopupType"]" === "info") {
+                    // After clicking "OK" on the cancel confirmation, redirect to the success page
+                    window.location.href = "/WH/WHEditDelete";
+                }
+            });
+        });
+    </script>
+}

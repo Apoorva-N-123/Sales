@@ -1,0 +1,226 @@
+﻿@model Sales.Models.Despatch
+@using Sales.Models
+
+<h2>Edit Despatch</h2>
+
+@using (Html.BeginForm("EditDespatch", "Despatch", FormMethod.Post, new { id = "editForm" }))
+{
+    @Html.AntiForgeryToken() <!-- Ensure the anti-forgery token is included -->
+
+    <label>Despatch Advice Number:</label>
+    <input type="text" name="DespatchAdviceNumber" value="@Model.DespatchAdviceNumber" class="form-control" readonly />
+
+    <label>Despatch Advice Date:</label>
+    <input type="date" name="DespatchAdviceDate" value="@Model.DespatchAdviceDate.ToString("yyyy-MM-dd")" class="form-control" />
+
+    <label>Customer Name:</label>
+    <input type="text" name="CustomerName" value="@Model.CustomerName" class="form-control" />
+
+    <label>GSTIN:</label>
+    <input type="text" name="GSTIN" value="@Model.GSTIN" class="form-control" />
+
+    <label>Delivery Address:</label>
+    <textarea name="DeliveryAddress" class="form-control">@Model.DeliveryAddress</textarea>
+
+    <label>Vehicle Number:</label>
+    <input type="text" name="VehicleNumber" value="@Model.VehicleNumber" class="form-control" />
+
+    <h4>Despatch Details</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Order Reference Number</th>
+                <th>Product Code</th>
+                <th>Description</th>
+                <th>Order Quantity</th>
+                <th>Pack Type</th>
+                <th>Rate</th>
+                <th>Despatch Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int index = 0;
+            }
+            @foreach (var detail in ViewBag.DespatchDetails as List<DespatchDetails>)
+            {
+                <tr class="despatchDetailRow">
+                    <!-- Added class here -->
+                    <td><input type="text" name="DespatchDetails[@index].OrderReferenceNumber" value="@detail.OrderReferenceNumber" class="form-control OrderReferenceNumber" /></td>
+                    <td><input type="text" name="DespatchDetails[@index].ProductCode" value="@detail.ProductCode" class="form-control ProductCode" /></td>
+                    <td><input type="text" name="DespatchDetails[@index].ProductDescription" value="@detail.ProductDescription" class="form-control ProductDescription" /></td>
+                    <td><input type="number" name="DespatchDetails[@index].OrderQuantity" value="@detail.OrderQuantity" class="form-control OrderQuantity" /></td>
+                    <td><input type="text" name="DespatchDetails[@index].PackType" value="@detail.PackType" class="form-control PackType" /></td>
+                    <td><input type="number" step="0.01" name="DespatchDetails[@index].Rate" value="@detail.Rate" class="form-control Rate" /></td>
+                    <td><input type="number" name="DespatchDetails[@index].DespatchQuantity" value="@detail.DespatchQuantity" class="form-control DespatchQuantity" /></td>
+                </tr>
+                index++;
+            }
+        </tbody>
+
+    </table>
+
+    <!-- Buttons should be inside the form -->
+    <button type="button" id="saveBtn" class="btn btn-success">Save</button>
+    <button type="button" id="cancelBtn" class="btn btn-warning">Cancel</button>
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Ensure jQuery is included -->
+<script>
+    $(document).ready(function () {
+        $("#saveBtn").click(function () { // Corrected ID
+
+            var token = $('input[name="__RequestVerificationToken"]').val(); // Get Anti-Forgery Token
+
+            var formData = {
+                __RequestVerificationToken: token, // Include CSRF token
+                DespatchAdviceNumber: $("input[name='DespatchAdviceNumber']").val(),
+                DespatchAdviceDate: $("input[name='DespatchAdviceDate']").val(),
+                CustomerName: $("input[name='CustomerName']").val(),
+                GSTIN: $("input[name='GSTIN']").val(),
+                DeliveryAddress: $("textarea[name='DeliveryAddress']").val(),
+                VehicleNumber: $("input[name='VehicleNumber']").val(),
+                DespatchDetails: []
+            };
+
+            $(".despatchDetailRow").each(function () {
+                var detail = {
+                    OrderReferenceNumber: $(this).find(".OrderReferenceNumber").val(),
+                    ProductCode: $(this).find(".ProductCode").val(),
+                    ProductDescription: $(this).find(".ProductDescription").val(),
+                    OrderQuantity: parseInt($(this).find(".OrderQuantity").val()) || 0,
+                    PackType: $(this).find(".PackType").val(),
+                    Rate: parseFloat($(this).find(".Rate").val()) || 0,
+                    DespatchQuantity: parseInt($(this).find(".DespatchQuantity").val()) || 0
+                };
+                formData.DespatchDetails.push(detail);
+            });
+
+            $.ajax({
+                url: "/Despatch/EditDespatch",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(formData),
+                success: function (response) {
+    if (response.success) {
+        alert(response.message);
+        window.location.href = '@Url.Action("EditDeleteDespatch", "Despatch")';
+    } else {
+        alert(response.message);
+        console.log("Errors:", response.errors);
+    }
+},
+
+                error: function () {
+                    alert("Something went wrong.");
+                }
+            });
+        });
+
+        $("#cancelBtn").click(function () {
+            alert("Despatch updation cancelled");
+            window.location.href = '@Url.Action("EditDeleteDespatch", "Despatch")';
+        });
+    });
+</script>
+<style>
+    /* General Styles */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+    }
+
+    /* Form Container */
+    form {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 900px;
+        margin: auto;
+    }
+
+    /* Heading */
+    h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    /* Labels */
+    label {
+        font-weight: bold;
+        margin-top: 10px;
+        display: block;
+    }
+
+    /* Form Inputs */
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    textarea {
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    /* Readonly Input */
+    input[readonly] {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+    }
+
+    /* Table Styles */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        background: #fff;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #007bff;
+        color: white;
+    }
+
+    /* Buttons */
+    button {
+        padding: 10px 15px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: 0.3s;
+    }
+
+    #saveBtn {
+        background: #28a745;
+        color: white;
+        margin-top: 10px;
+    }
+
+        #saveBtn:hover {
+            background: #218838;
+        }
+
+    #cancelBtn {
+        background: #ffc107;
+        color: black;
+        margin-left: 10px;
+        margin-top: 10px;
+    }
+
+        #cancelBtn:hover {
+            background: #e0a800;
+        }
+</style>

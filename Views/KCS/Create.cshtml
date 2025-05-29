@@ -1,0 +1,185 @@
+﻿@model Sales.Models.KCS
+
+@{
+    ViewBag.Title = "Create KCS";
+}
+
+<h2>Create KCS</h2>
+
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: beige;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 30px;
+        font-weight: 600;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 700px;
+        background-color: #ffffff;
+        padding: 35px;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        margin: auto;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-size: 1.1rem;
+        color: #555;
+        font-weight: 600;
+    }
+
+    input.form-control, textarea.form-control {
+        font-size: 1rem;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        width: 100%;
+        transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        input.form-control:focus, textarea.form-control:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+        }
+
+    button.btn-primary {
+        background-color: #4caf50;
+        border-color: #4caf50;
+        color: white;
+        font-size: 1.1rem;
+        padding: 12px 25px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+        button.btn-primary:hover {
+            background-color: #45a049;
+            border-color: #45a049;
+        }
+
+    button.btn-secondary {
+        background-color: #f1f1f1;
+        border: 1px solid #ddd;
+        color: #555;
+        font-size: 1.1rem;
+        padding: 12px 25px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+        button.btn-secondary:hover {
+            background-color: #e2e2e2;
+            border-color: #ccc;
+        }
+
+    .modal-content {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        background-color: hotpink;
+        color: white;
+        border-radius: 12px 12px 0 0;
+        font-size: 1.2rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #ddd;
+        text-align: right;
+    }
+
+        .modal-footer .btn-primary {
+            background-color: dodgerblue;
+            border-color: #4caf50;
+            color: white;
+            padding: 8px 20px;
+        }
+</style>
+
+@if (TempData["PopupMessage"] != null)
+{
+    <div id="popupModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@TempData["PopupType"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>@TempData["PopupMessage"]</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="popupOkButton" data-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<form action="/KCS/Create" method="post">
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <label for="KCSCode">KCS Code</label>
+        @Html.TextBoxFor(m => m.KCSCode, new { @class = "form-control", @placeholder = "Enter KCS Code" })
+        @Html.ValidationMessageFor(m => m.KCSCode, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+        <label for="KCSDescription">KCS Description</label>
+        @Html.TextBoxFor(m => m.KCSDescription, new { @class = "form-control", @placeholder = "Enter Description" })
+        @Html.ValidationMessageFor(m => m.KCSDescription, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Save</button><br /><br />
+        <center><a href="/KCS/Cancel" class="btn btn-secondary">Cancel</a></center>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Show pop-up modal if it exists
+            if ($('#popupModal').length) {
+                $('#popupModal').modal('show');
+            }
+
+            $('#popupOkButton').click(function () {
+                // After clicking OK, check the type of pop-up and act accordingly
+                if ('@TempData["PopupType"]' === 'info') {
+                    window.location.href = "/KCS/KCSEditDelete"; // Redirect to Success page
+                } else {
+                    window.location.href = "/KCS/Create"; // Stay on the Create page after Save
+                }
+            });
+        });
+    </script>
+}
